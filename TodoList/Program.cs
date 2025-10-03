@@ -3,20 +3,19 @@
     class Program
     {
         private static Person user;
- 
+        private static string[] todos = new string[2]; 
+        private static int taskCount = 0;
+
         static void Main(string[] args)
         {
             Console.WriteLine("Работу выполнили Токмаков и Неофидис");
 
-            //GetDataUser();
-
-            string[] todos = new string[10];
-
             while (true)
             {
                 Console.Write("Введите команду: ");
-                string command = Console.ReadLine().Trim().ToLower();
-
+                string fullInput = Console.ReadLine().Trim();
+                string[] partInput = fullInput.Split(' ', 2);
+                string command = partInput[0].ToLower();
                 switch (command)
                 {
                     case "help":
@@ -32,6 +31,14 @@
                         break;
 
                     case "add":
+                        if (partInput.Length > 1)
+                        {
+                            AddTask(partInput[1]);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Неправильный формат, должен быть: add \"текст задачи\" или add текст задачи");
+                        }
                         break;
 
                     case "view":
@@ -60,7 +67,7 @@
 
             Console.WriteLine($"Добавлен пользователь {firstName} {lastName}, Год рождения: {yearBirth}, возраст – {age}");
             Console.WriteLine();
-            //Console.ReadLine();
+
         }
         static void Help()
         {
@@ -86,6 +93,31 @@
                 Console.WriteLine("Данные пользователя не найдены");
             }
             Console.ReadLine();
+        }
+
+        static void AddTask(string taskText)
+        {
+            if (taskText.StartsWith("\"") && taskText.EndsWith("\""))
+            {
+                taskText = taskText.Substring(1, taskText.Length - 2);
+            }
+
+            if (taskCount >= todos.Length)
+            {
+                string[] newTodos = new string[todos.Length * 2];
+
+                for (int i = 0; i < todos.Length; i++)
+                {
+                    newTodos[i] = todos[i];
+                }
+
+                todos = newTodos;
+                Console.WriteLine($"Массив todos увеличен до {todos.Length} элементов");
+            }
+
+            todos[taskCount] = taskText;
+            taskCount++;
+            Console.WriteLine($"Добавлена задача №{taskCount}: {taskText}");
         }
 
     }
