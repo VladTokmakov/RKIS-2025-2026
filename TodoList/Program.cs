@@ -3,7 +3,7 @@
     class Program
     {
         private static Person user;
-        private static string[] todos = new string[2]; 
+        private static string[] todos = new string[2];
         private static int taskCount = 0;
 
         static void Main(string[] args)
@@ -42,10 +42,11 @@
                         break;
 
                     case "view":
+                        TasksView();
                         break;
 
                     case "exit":
-                        break;
+                        return;
                 }
 
             }
@@ -77,7 +78,6 @@
             Console.WriteLine("add     - добавляет новую задачу");
             Console.WriteLine("view    - выводит все задачи из массива");
             Console.WriteLine("exit    - завершает программу");
-            Console.ReadLine();
         }
 
         static void Profile()
@@ -92,7 +92,6 @@
             {
                 Console.WriteLine("Данные пользователя не найдены");
             }
-            Console.ReadLine();
         }
 
         static void AddTask(string taskText)
@@ -118,6 +117,22 @@
             todos[taskCount] = taskText;
             taskCount++;
             Console.WriteLine($"Добавлена задача №{taskCount}: {taskText}");
+        }
+        
+        static void TasksView()
+        {
+            if (taskCount == 0)
+            {
+                Console.WriteLine("Задачи отсутствуют");
+            }
+            else
+            {
+                Console.WriteLine("Список задач:");
+                for (int i = 0; i < taskCount; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {todos[i]}");
+                }
+            }
         }
 
     }
