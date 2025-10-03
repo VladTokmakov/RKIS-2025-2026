@@ -22,12 +22,31 @@
             Console.WriteLine($"Добавлен пользователь {firstName} {lastName}, возраст – {age}");
             */
 
-            string[] todos = new string[0];
+            string[] todos = new string[10];
 
             while (true)
             {
                 Console.Write("Введите команду: ");
-                string command = Console.ReadLine();
+                string command = Console.ReadLine().Trim();
+
+                switch (command)
+                {
+                    case "help":
+                        break;
+
+                    case "profile":
+                        break;
+
+                    case "add":
+                        break;
+
+                    case "view":
+                        break;
+
+                    case "exit":
+                        break;
+                }
+
             }
         }
     }
