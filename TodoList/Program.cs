@@ -27,11 +27,12 @@
             while (true)
             {
                 Console.Write("Введите команду: ");
-                string command = Console.ReadLine().Trim();
+                string command = Console.ReadLine().Trim().ToLower();
 
                 switch (command)
                 {
                     case "help":
+                        Help();
                         break;
 
                     case "profile":
@@ -49,5 +50,17 @@
 
             }
         }
+
+        static void Help()
+        {
+            Console.WriteLine("Доступные команды:");
+            Console.WriteLine("help    - выводит список всех доступных команд с кратким описанием");
+            Console.WriteLine("profile - выводит данные пользователя");
+            Console.WriteLine("add     - добавляет новую задачу");
+            Console.WriteLine("view    - выводит все задачи из массива");
+            Console.WriteLine("exit    - завершает программу");
+            Console.ReadLine();
+        }
+
     }
 }
