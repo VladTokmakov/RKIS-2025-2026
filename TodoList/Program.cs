@@ -47,6 +47,11 @@
 
                     case "exit":
                         return;
+
+                    default:
+                    Console.WriteLine($"Неизвестная команда: {command}");
+                    Console.WriteLine("Введите 'help' для просмотра доступных команд");
+                    break;
                 }
 
             }
