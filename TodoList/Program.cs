@@ -219,6 +219,9 @@ namespace Todolist
             Console.WriteLine("profile - выводит данные пользователя");
             Console.WriteLine("add     - добавляет новую задачу");
             Console.WriteLine("view    - выводит все задачи из массива");
+            Console.WriteLine("done    - отмечает задачу выполненной");
+            Console.WriteLine("delete  - удаляет задачу по индексу");
+            Console.WriteLine("update  - обновляет текст задачи");
             Console.WriteLine("exit    - завершает программу");
         }
 
