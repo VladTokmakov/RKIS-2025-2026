@@ -57,7 +57,7 @@ namespace Todolist
                         }
                         else
                         {
-                            Console.WriteLine("Неправильный формат, должен быть: done \"номер задачи\"");
+                            Console.WriteLine("Неправильный формат, должен быть: done номер_задачи");
                         }
                         break;
 
@@ -68,7 +68,18 @@ namespace Todolist
                         }
                         else
                         {
-                            Console.WriteLine("Неправильный формат, должен быть: delete \"номер задачи\"");
+                            Console.WriteLine("Неправильный формат, должен быть: delete номер_задачи");
+                        }
+                        break;
+
+                    case "update":
+                        if (partInput.Length > 1)
+                        {
+                            UpdateTask(partInput[1]);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст");
                         }
                         break;
 
@@ -80,7 +91,6 @@ namespace Todolist
                         Console.WriteLine("Введите 'help' для просмотра доступных команд");
                         break;
                 }
-
             }
         }
         static void MarkTaskDone(string taskText)
@@ -138,9 +148,49 @@ namespace Todolist
             }
             else
             {
-                Console.WriteLine("Ошибка: номер задачи должен быть числом");
+                Console.WriteLine("Номер задачи должен быть числом");
             }
-}
+        }
+
+        static void UpdateTask(string taskText)
+        {
+            string[] parts = taskText.Split(' ', 2);
+            
+            if (parts.Length < 2)
+            {
+                Console.WriteLine("Не указан новый текст задачи");
+                return;
+            }
+
+            if (Regex.IsMatch(parts[0], @"^\d+$"))
+            {
+                int taskNumber = int.Parse(parts[0]);
+                if (taskNumber > 0 && taskNumber <= taskCount)
+                {
+                    int taskIndex = taskNumber - 1;
+                    string newText = parts[1];
+                    
+                    if (newText.StartsWith("\"") && newText.EndsWith("\""))
+                    {
+                        newText = newText.Substring(1, newText.Length - 2);
+                    }
+                    
+                    string oldText = todos[taskIndex];
+                    todos[taskIndex] = newText;
+                    dates[taskIndex] = DateTime.Now;
+                    
+                    Console.WriteLine($"Обновил задачу: \nБыло: Задача №{taskNumber} \"{oldText}\" \nСтало: Задача №{taskNumber} \"{newText}\"");
+                }
+                else
+                {
+                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {taskCount}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Номер задачи должен быть числом");
+            }
+        }
 
 
         static void SetDataUser()
