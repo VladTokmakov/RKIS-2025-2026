@@ -61,6 +61,17 @@ namespace Todolist
                         }
                         break;
 
+                    case "delete":
+                        if (partInput.Length > 1)
+                        {
+                            DeleteTask(partInput[1]);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Неправильный формат, должен быть: delete \"номер задачи\"");
+                        }
+                        break;
+
                     case "exit":
                         return;
 
@@ -94,9 +105,42 @@ namespace Todolist
             {
                 Console.WriteLine("Номер задачи должен быть числом");
             }
-
-
         }
+
+        static void DeleteTask(string taskText)
+        {
+            if (Regex.IsMatch(taskText, @"^\d+$"))
+            {
+                int taskNumber = int.Parse(taskText);
+                if (taskNumber > 0 && taskNumber <= taskCount)
+                {
+                    int taskIndex = taskNumber - 1;
+                    string deletedTask = todos[taskIndex];
+                    
+                    for (int i = taskIndex; i < taskCount - 1; i++)
+                    {
+                        todos[i] = todos[i + 1];
+                        statuses[i] = statuses[i + 1];
+                        dates[i] = dates[i + 1];
+                    }
+                    
+                    todos[taskCount - 1] = null;
+                    statuses[taskCount - 1] = false;
+                    dates[taskCount - 1] = DateTime.MinValue;
+                    
+                    taskCount--;
+                    Console.WriteLine($"Задача №{taskNumber} '{deletedTask}' удалена");
+                }
+                else
+                {
+                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {taskCount}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Ошибка: номер задачи должен быть числом");
+            }
+}
 
 
         static void SetDataUser()
