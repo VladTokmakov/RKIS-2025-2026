@@ -4,11 +4,14 @@
     {
         private static Person user;
         private static string[] todos = new string[2];
+        private static bool[] statuses = new bool[2];
+        private static DateTime[] dates = new DateTime[2];
         private static int taskCount = 0;
 
         static void Main(string[] args)
         {
             Console.WriteLine("Работу выполнили Токмаков и Неофидис");
+            SetDataUser();
 
             while (true)
             {
@@ -26,8 +29,8 @@
                         Profile();
                         break;
 
-                    case "adduser":
-                        GetDataUser();
+                    case "add_user":
+                        SetDataUser();
                         break;
 
                     case "add":
@@ -49,14 +52,14 @@
                         return;
 
                     default:
-                    Console.WriteLine($"Неизвестная команда: {command}");
-                    Console.WriteLine("Введите 'help' для просмотра доступных команд");
-                    break;
+                        Console.WriteLine($"Неизвестная команда: {command}");
+                        Console.WriteLine("Введите 'help' для просмотра доступных команд");
+                        break;
                 }
 
             }
         }
-        static void GetDataUser()
+        static void SetDataUser()
         {
             Console.Write("Введите ваше имя: ");
             string firstName = Console.ReadLine();
@@ -108,20 +111,42 @@
 
             if (taskCount >= todos.Length)
             {
-                string[] newTodos = new string[todos.Length * 2];
-
-                for (int i = 0; i < todos.Length; i++)
-                {
-                    newTodos[i] = todos[i];
-                }
-
-                todos = newTodos;
-                Console.WriteLine($"Массив todos увеличен до {todos.Length} элементов");
+                ExpandAllArrays();
             }
 
             todos[taskCount] = taskText;
+            statuses[taskCount] = false;
+            dates[taskCount] = DateTime.Now;
             taskCount++;
             Console.WriteLine($"Добавлена задача №{taskCount}: {taskText}");
+        }
+
+        static void ExpandAllArrays()
+        {
+            int newSize = todos.Length * 2;
+        
+            string[] newTodos = new string[newSize];
+            for (int i = 0; i < todos.Length; i++)
+            {
+                newTodos[i] = todos[i];
+            }
+            todos = newTodos;
+            
+            bool[] newStatuses = new bool[newSize];
+            for (int i = 0; i < statuses.Length; i++)
+            {
+                newStatuses[i] = statuses[i];
+            }
+            statuses = newStatuses;
+            
+            DateTime[] newDates = new DateTime[newSize];
+            for (int i = 0; i < dates.Length; i++)
+            {
+                newDates[i] = dates[i];
+            }
+            dates = newDates;
+            
+            Console.WriteLine($"Массивы увеличены до {newSize} элементов");
         }
         
         static void TasksView()
@@ -135,7 +160,9 @@
                 Console.WriteLine("Список задач:");
                 for (int i = 0; i < taskCount; i++)
                 {
-                    Console.WriteLine($"{i + 1}. {todos[i]}");
+                    string statusText = statuses[i] ? "Сделано" : "Не сделано";
+                    string dateText = dates[i].ToString();
+                    Console.WriteLine($"{i + 1}. {todos[i]} [{statusText}] {dateText}");
                 }
             }
         }
