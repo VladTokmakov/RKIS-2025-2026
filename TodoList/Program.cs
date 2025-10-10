@@ -1,4 +1,6 @@
-﻿namespace Todolist
+﻿using System.Text.RegularExpressions;
+
+namespace Todolist
 {
     class Program
     {
@@ -48,6 +50,17 @@
                         TasksView();
                         break;
 
+                    case "done":
+                        if (partInput.Length > 1)
+                        {
+                            MarkTaskDone(partInput[1]);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Неправильный формат, должен быть: done \"номер задачи\"");
+                        }
+                        break;
+
                     case "exit":
                         return;
 
@@ -59,6 +72,33 @@
 
             }
         }
+        static void MarkTaskDone(string taskText)
+        {
+            if (Regex.IsMatch(taskText, @"^\d+$"))
+            {
+                int taskNumber = int.Parse(taskText);
+                if (taskNumber > 0 && taskNumber <= taskCount)
+                {
+                    int taskIndex = taskNumber - 1;
+                    statuses[taskIndex] = true;
+                    dates[taskIndex] = DateTime.Now;
+                    Console.WriteLine($"Задача №{taskNumber} отмечена как выполненная");
+                }
+                else
+                {
+                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {taskCount}");
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Номер задачи должен быть числом");
+            }
+
+
+        }
+
+
         static void SetDataUser()
         {
             Console.Write("Введите ваше имя: ");
@@ -124,31 +164,31 @@
         static void ExpandAllArrays()
         {
             int newSize = todos.Length * 2;
-        
+
             string[] newTodos = new string[newSize];
             for (int i = 0; i < todos.Length; i++)
             {
                 newTodos[i] = todos[i];
             }
             todos = newTodos;
-            
+
             bool[] newStatuses = new bool[newSize];
             for (int i = 0; i < statuses.Length; i++)
             {
                 newStatuses[i] = statuses[i];
             }
             statuses = newStatuses;
-            
+
             DateTime[] newDates = new DateTime[newSize];
             for (int i = 0; i < dates.Length; i++)
             {
                 newDates[i] = dates[i];
             }
             dates = newDates;
-            
+
             Console.WriteLine($"Массивы увеличены до {newSize} элементов");
         }
-        
+
         static void TasksView()
         {
             if (taskCount == 0)
