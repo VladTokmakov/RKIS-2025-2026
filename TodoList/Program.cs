@@ -330,31 +330,36 @@ namespace Todolist
 
             if (showAll) showIndex = showStatus = showDate = true;
 
-            Console.WriteLine("Список задач:");
+            string header = "";
+            if (showIndex) header += "№       ";
+            if (showStatus) header += "Статус     ";
+            header += "Задача                            ";
+            if (showDate) header += "Дата изменения  ";
+            
+            Console.WriteLine(header);
+            Console.WriteLine(new string('-', header.Length));
 
             for (int i = 0; i < taskCount; i++)
             {
-                string line = "";
-                if (showIndex) line += $"{i + 1}. ";
-                if (showStatus) line += $"{(statuses[i] ? "Сделано" : "Не сделано")} ";
+                string row = "";
                 
-                string shortText = todos[i];
-                if (shortText.Length > 30) shortText = shortText.Substring(0, 30) + "...";
-                line += shortText;
+                if (showIndex) row += $"{i + 1}       ".Substring(0, 8);
+
+                if (showStatus)
+                {
+                    string statusText = statuses[i] ? "Сделано    " : "Не сделано ";
+                    row += statusText;
+                }
                 
-                if (showDate) line += $" {dates[i]}";
+                string taskText = todos[i];
+                if (taskText.Length > 34) 
+                    taskText = taskText.Substring(0, 30) + "... ";
+                row += taskText + new string(' ', 34 - taskText.Length);
                 
-                Console.WriteLine(line);
+                if (showDate) row += $"{dates[i]} ";
+                
+                Console.WriteLine(row);
             }
-
-/*
-            Console.WriteLine("Список задач:");
-            for (int i = 0; i < taskCount; i++)
-            {
-                string statusText = statuses[i] ? "Сделано" : "Не сделано";
-                string dateText = dates[i].ToString();
-                Console.WriteLine($"{i + 1}. {todos[i]} [{statusText}] {dateText}");
-            }*/
         }
 
     }
