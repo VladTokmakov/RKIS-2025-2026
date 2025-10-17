@@ -93,11 +93,11 @@ namespace Todolist
                 }
             }
         }
-        static void MarkTaskDone(string taskText)
+        static void MarkTaskDone(string taskID)
         {
-            if (Regex.IsMatch(taskText, @"^\d+$"))
+            if (Regex.IsMatch(taskID, @"^\d+$"))
             {
-                int taskNumber = int.Parse(taskText);
+                int taskNumber = int.Parse(taskID);
                 if (taskNumber > 0 && taskNumber <= taskCount)
                 {
                     int taskIndex = taskNumber - 1;
@@ -117,11 +117,11 @@ namespace Todolist
             }
         }
 
-        static void DeleteTask(string taskText)
+        static void DeleteTask(string taskID)
         {
-            if (Regex.IsMatch(taskText, @"^\d+$"))
+            if (Regex.IsMatch(taskID, @"^\d+$"))
             {
-                int taskNumber = int.Parse(taskText);
+                int taskNumber = int.Parse(taskID);
                 if (taskNumber > 0 && taskNumber <= taskCount)
                 {
                     int taskIndex = taskNumber - 1;
@@ -152,9 +152,9 @@ namespace Todolist
             }
         }
 
-        static void UpdateTask(string taskText)
+        static void UpdateTask(string taskID)
         {
-            string[] parts = taskText.Split(' ', 2);
+            string[] parts = taskID.Split(' ', 2);
             
             if (parts.Length < 2)
             {
@@ -239,11 +239,11 @@ namespace Todolist
             }
         }
 
-        static void AddTask(string taskText)
+        static void AddTask(string taskID)
         {
-            if (taskText.StartsWith("\"") && taskText.EndsWith("\""))
+            if (taskID.StartsWith("\"") && taskID.EndsWith("\""))
             {
-                taskText = taskText.Substring(1, taskText.Length - 2);
+                taskID = taskID.Substring(1, taskID.Length - 2);
             }
 
             if (taskCount >= todos.Length)
@@ -251,11 +251,11 @@ namespace Todolist
                 ExpandAllArrays();
             }
 
-            todos[taskCount] = taskText;
+            todos[taskCount] = taskID;
             statuses[taskCount] = false;
             dates[taskCount] = DateTime.Now;
             taskCount++;
-            Console.WriteLine($"Добавлена задача №{taskCount}: {taskText}");
+            Console.WriteLine($"Добавлена задача №{taskCount}: {taskID}");
         }
 
         static void ExpandAllArrays()
@@ -263,24 +263,18 @@ namespace Todolist
             int newSize = todos.Length * 2;
 
             string[] newTodos = new string[newSize];
+            bool[] newStatuses = new bool[newSize];
+            DateTime[] newDates = new DateTime[newSize];
+
             for (int i = 0; i < todos.Length; i++)
             {
                 newTodos[i] = todos[i];
-            }
-            todos = newTodos;
-
-            bool[] newStatuses = new bool[newSize];
-            for (int i = 0; i < statuses.Length; i++)
-            {
                 newStatuses[i] = statuses[i];
-            }
-            statuses = newStatuses;
-
-            DateTime[] newDates = new DateTime[newSize];
-            for (int i = 0; i < dates.Length; i++)
-            {
                 newDates[i] = dates[i];
             }
+
+            todos = newTodos;
+            statuses = newStatuses;
             dates = newDates;
 
             Console.WriteLine($"Массивы увеличены до {newSize} элементов");
