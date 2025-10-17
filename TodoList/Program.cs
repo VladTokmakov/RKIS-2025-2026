@@ -46,6 +46,18 @@ namespace Todolist
                         }
                         break;
 
+                    
+                    case "read":
+                        if (partInput.Length > 1)
+                        {
+                            ReadTask(partInput[1]);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Неправильный формат, должен быть: read номер_задачи");
+                        }
+                        break;
+
                     case "view":
                         string flags;
                         if (partInput.Length > 1)
@@ -315,6 +327,31 @@ namespace Todolist
             Console.WriteLine($"Массивы увеличены до {newSize} элементов");
         }
 
+
+        static void ReadTask(string taskID)
+        {
+            if (Regex.IsMatch(taskID, @"^\d+$"))
+            {
+                int taskNumber = int.Parse(taskID);
+                if (taskNumber > 0 && taskNumber <= taskCount)
+                {
+                    int taskIndex = taskNumber - 1;
+                    Console.WriteLine($"Задача №{taskNumber}:");
+                    Console.WriteLine($"Текст: {todos[taskIndex]}");
+                    Console.WriteLine($"Статус: {(statuses[taskIndex] ? "Выполнена" : "Не выполнена")}");
+                    Console.WriteLine($"Дата изменения: {dates[taskIndex]}");
+                }
+                else
+                {
+                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {taskCount}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Номер задачи должен быть числом");
+            }
+        }
+
         static void TasksView(string flags)
         {
             if (taskCount == 0)
@@ -335,14 +372,14 @@ namespace Todolist
             if (showStatus) header += "Статус     ";
             header += "Задача                            ";
             if (showDate) header += "Дата изменения  ";
-            
+
             Console.WriteLine(header);
             Console.WriteLine(new string('-', header.Length));
 
             for (int i = 0; i < taskCount; i++)
             {
                 string row = "";
-                
+
                 if (showIndex) row += $"{i + 1}       ".Substring(0, 8);
 
                 if (showStatus)
@@ -350,14 +387,14 @@ namespace Todolist
                     string statusText = statuses[i] ? "Сделано    " : "Не сделано ";
                     row += statusText;
                 }
-                
+
                 string taskText = todos[i];
-                if (taskText.Length > 34) 
+                if (taskText.Length > 34)
                     taskText = taskText.Substring(0, 30) + "... ";
                 row += taskText + new string(' ', 34 - taskText.Length);
-                
+
                 if (showDate) row += $"{dates[i]} ";
-                
+
                 Console.WriteLine(row);
             }
         }
