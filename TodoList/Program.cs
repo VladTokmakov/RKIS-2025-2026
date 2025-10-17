@@ -241,21 +241,47 @@ namespace Todolist
 
         static void AddTask(string taskID)
         {
-            if (taskID.StartsWith("\"") && taskID.EndsWith("\""))
+            if (taskID == "--multiline" || taskID == "-m")
             {
-                taskID = taskID.Substring(1, taskID.Length - 2);
-            }
+                Console.WriteLine("Многострочный режим. Введите задачи (для завершения введите 'lend'):");
+                string multilineText = "";
 
-            if (taskCount >= todos.Length)
+                string line = Console.ReadLine();
+                while (line.ToLower() != "!end")
+                {
+                    multilineText += line + "\n";
+                    line = Console.ReadLine();
+                }
+
+                if (taskCount >= todos.Length)
+                {
+                    ExpandAllArrays();
+                }
+
+                todos[taskCount] = multilineText.Trim();
+                statuses[taskCount] = false;
+                dates[taskCount] = DateTime.Now;
+                taskCount++;
+                Console.WriteLine($"Добавлена задача №{taskCount}: {multilineText.Trim()}");
+            }
+            else
             {
-                ExpandAllArrays();
-            }
+                if (taskID.StartsWith("\"") && taskID.EndsWith("\""))
+                {
+                    taskID = taskID.Substring(1, taskID.Length - 2);
+                }
 
-            todos[taskCount] = taskID;
-            statuses[taskCount] = false;
-            dates[taskCount] = DateTime.Now;
-            taskCount++;
-            Console.WriteLine($"Добавлена задача №{taskCount}: {taskID}");
+                if (taskCount >= todos.Length)
+                {
+                    ExpandAllArrays();
+                }
+
+                todos[taskCount] = taskID;
+                statuses[taskCount] = false;
+                dates[taskCount] = DateTime.Now;
+                taskCount++;
+                Console.WriteLine($"Добавлена задача №{taskCount}: {taskID}");
+            }
         }
 
         static void ExpandAllArrays()
