@@ -47,7 +47,16 @@ namespace Todolist
                         break;
 
                     case "view":
-                        TasksView();
+                        string flags;
+                        if (partInput.Length > 1)
+                        {
+                            flags = partInput[1];
+                        }
+                        else
+                        {
+                            flags = "";
+                        }
+                        TasksView(flags);
                         break;
 
                     case "done":
@@ -306,22 +315,46 @@ namespace Todolist
             Console.WriteLine($"Массивы увеличены до {newSize} элементов");
         }
 
-        static void TasksView()
+        static void TasksView(string flags)
         {
             if (taskCount == 0)
             {
                 Console.WriteLine("Задачи отсутствуют");
+                return;
             }
-            else
+
+            bool showIndex = flags.Contains("-i") || flags.Contains("--index");
+            bool showStatus = flags.Contains("-s") || flags.Contains("--status");
+            bool showDate = flags.Contains("-d") || flags.Contains("--update-date");
+            bool showAll = flags.Contains("-a") || flags.Contains("--all");
+
+            if (showAll) showIndex = showStatus = showDate = true;
+
+            Console.WriteLine("Список задач:");
+
+            for (int i = 0; i < taskCount; i++)
             {
-                Console.WriteLine("Список задач:");
-                for (int i = 0; i < taskCount; i++)
-                {
-                    string statusText = statuses[i] ? "Сделано" : "Не сделано";
-                    string dateText = dates[i].ToString();
-                    Console.WriteLine($"{i + 1}. {todos[i]} [{statusText}] {dateText}");
-                }
+                string line = "";
+                if (showIndex) line += $"{i + 1}. ";
+                if (showStatus) line += $"{(statuses[i] ? "Сделано" : "Не сделано")} ";
+                
+                string shortText = todos[i];
+                if (shortText.Length > 30) shortText = shortText.Substring(0, 30) + "...";
+                line += shortText;
+                
+                if (showDate) line += $" {dates[i]}";
+                
+                Console.WriteLine(line);
             }
+
+/*
+            Console.WriteLine("Список задач:");
+            for (int i = 0; i < taskCount; i++)
+            {
+                string statusText = statuses[i] ? "Сделано" : "Не сделано";
+                string dateText = dates[i].ToString();
+                Console.WriteLine($"{i + 1}. {todos[i]} [{statusText}] {dateText}");
+            }*/
         }
 
     }
