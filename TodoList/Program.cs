@@ -239,11 +239,18 @@ namespace Todolist
             Console.WriteLine("help    - выводит список всех доступных команд с кратким описанием");
             Console.WriteLine("profile - выводит данные пользователя");
             Console.WriteLine("add     - добавляет новую задачу");
+            Console.WriteLine("read    - полный просмотр задачи");
             Console.WriteLine("view    - выводит все задачи из массива");
             Console.WriteLine("done    - отмечает задачу выполненной");
             Console.WriteLine("delete  - удаляет задачу по индексу");
             Console.WriteLine("update  - обновляет текст задачи");
             Console.WriteLine("exit    - завершает программу");
+            Console.WriteLine();
+            Console.WriteLine("Флаги для команды 'view':");
+            Console.WriteLine("  -i, --index       - показывать индекс задачи");
+            Console.WriteLine("  -s, --status      - показывать статус задачи");
+            Console.WriteLine("  -d, --update-date - показывать дату изменения");
+            Console.WriteLine("  -a, --all         - показывать все данные");
         }
 
         static void Profile()
