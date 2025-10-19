@@ -74,7 +74,7 @@ namespace Todolist
                     case "done":
                         if (partInput.Length > 1)
                         {
-                            MarkTaskDone(partInput[1]);
+                            TaskID(partInput[1]);
                         }
                         else
                         {
@@ -114,11 +114,11 @@ namespace Todolist
                 }
             }
         }
-        static void MarkTaskDone(string taskID)
+        static void TaskID(string taskText)
         {
-            if (Regex.IsMatch(taskID, @"^\d+$"))
+            if (Regex.IsMatch(taskText, @"^\d+$"))
             {
-                int taskNumber = int.Parse(taskID);
+                int taskNumber = int.Parse(taskText);
                 if (taskNumber > 0 && taskNumber <= taskCount)
                 {
                     int taskIndex = taskNumber - 1;
@@ -138,11 +138,11 @@ namespace Todolist
             }
         }
 
-        static void DeleteTask(string taskID)
+        static void DeleteTask(string taskText)
         {
-            if (Regex.IsMatch(taskID, @"^\d+$"))
+            if (Regex.IsMatch(taskText, @"^\d+$"))
             {
-                int taskNumber = int.Parse(taskID);
+                int taskNumber = int.Parse(taskText);
                 if (taskNumber > 0 && taskNumber <= taskCount)
                 {
                     int taskIndex = taskNumber - 1;
@@ -173,9 +173,9 @@ namespace Todolist
             }
         }
 
-        static void UpdateTask(string taskID)
+        static void UpdateTask(string taskText)
         {
-            string[] parts = taskID.Split(' ', 2);
+            string[] parts = taskText.Split(' ', 2);
             
             if (parts.Length < 2)
             {
@@ -235,22 +235,24 @@ namespace Todolist
         }
         static void Help()
         {
-            Console.WriteLine("Доступные команды:");
-            Console.WriteLine("help    - выводит список всех доступных команд с кратким описанием");
-            Console.WriteLine("profile - выводит данные пользователя");
-            Console.WriteLine("add     - добавляет новую задачу");
-            Console.WriteLine("read    - полный просмотр задачи");
-            Console.WriteLine("view    - выводит все задачи из массива");
-            Console.WriteLine("done    - отмечает задачу выполненной");
-            Console.WriteLine("delete  - удаляет задачу по индексу");
-            Console.WriteLine("update  - обновляет текст задачи");
-            Console.WriteLine("exit    - завершает программу");
-            Console.WriteLine();
-            Console.WriteLine("Флаги для команды 'view':");
-            Console.WriteLine("  -i, --index       - показывать индекс задачи");
-            Console.WriteLine("  -s, --status      - показывать статус задачи");
-            Console.WriteLine("  -d, --update-date - показывать дату изменения");
-            Console.WriteLine("  -a, --all         - показывать все данные");
+            Console.WriteLine("""
+            Доступные команды:
+            help    - выводит список всех доступных команд с кратким описанием
+            profile - выводит данные пользователя
+            add     - добавляет новую задачу
+            read    - полный просмотр задачи
+            view    - выводит все задачи из массива
+            done    - отмечает задачу выполненной
+            delete  - удаляет задачу по индексу
+            update  - обновляет текст задачи
+            exit    - завершает программу
+
+            Флаги для команды 'view':
+            -i, --index       - показывать индекс задачи
+            -s, --status      - показывать статус задачи
+            -d, --update-date - показывать дату изменения
+            -a, --all         - показывать все данные
+            """);
         }
 
         static void Profile()
@@ -267,16 +269,18 @@ namespace Todolist
             }
         }
 
-        static void AddTask(string taskID)
+        static void AddTask(string taskText)
         {
-            if (taskID == "--multiline" || taskID == "-m")
+            if (taskText == "--multiline" || taskText == "-m")
             {
-                Console.WriteLine("Многострочный режим. Введите задачи (для завершения введите 'lend'):");
+                Console.WriteLine("Многострочный режим. Введите задачи (для завершения введите '!end'):");
                 string multilineText = "";
 
+                Console.Write("> ");
                 string line = Console.ReadLine();
                 while (line.ToLower() != "!end")
                 {
+                    Console.Write("> ");
                     multilineText += line + "\n";
                     line = Console.ReadLine();
                 }
@@ -294,9 +298,9 @@ namespace Todolist
             }
             else
             {
-                if (taskID.StartsWith("\"") && taskID.EndsWith("\""))
+                if (taskText.StartsWith("\"") && taskText.EndsWith("\""))
                 {
-                    taskID = taskID.Substring(1, taskID.Length - 2);
+                    taskText = taskText.Substring(1, taskText.Length - 2);
                 }
 
                 if (taskCount >= todos.Length)
@@ -304,11 +308,11 @@ namespace Todolist
                     ExpandAllArrays();
                 }
 
-                todos[taskCount] = taskID;
+                todos[taskCount] = taskText;
                 statuses[taskCount] = false;
                 dates[taskCount] = DateTime.Now;
                 taskCount++;
-                Console.WriteLine($"Добавлена задача №{taskCount}: {taskID}");
+                Console.WriteLine($"Добавлена задача №{taskCount}: {taskText}");
             }
         }
 
@@ -335,11 +339,11 @@ namespace Todolist
         }
 
 
-        static void ReadTask(string taskID)
+        static void ReadTask(string taskText)
         {
-            if (Regex.IsMatch(taskID, @"^\d+$"))
+            if (Regex.IsMatch(taskText, @"^\d+$"))
             {
-                int taskNumber = int.Parse(taskID);
+                int taskNumber = int.Parse(taskText);
                 if (taskNumber > 0 && taskNumber <= taskCount)
                 {
                     int taskIndex = taskNumber - 1;
@@ -366,10 +370,9 @@ namespace Todolist
                 Console.WriteLine("Задачи отсутствуют");
                 return;
             }
-
-            bool showIndex = flags.Contains("-i") || flags.Contains("--index");
-            bool showStatus = flags.Contains("-s") || flags.Contains("--status");
-            bool showDate = flags.Contains("-d") || flags.Contains("--update-date");
+            bool showIndex = flags.Contains("-i") || flags.Contains("--index") || flags.Contains("i");
+            bool showStatus = flags.Contains("-s") || flags.Contains("--status") || flags.Contains("s");
+            bool showDate = flags.Contains("-d") || flags.Contains("--update-date") || flags.Contains("d");
             bool showAll = flags.Contains("-a") || flags.Contains("--all");
 
             if (showAll) showIndex = showStatus = showDate = true;
@@ -396,6 +399,7 @@ namespace Todolist
                 }
 
                 string taskText = todos[i];
+                taskText = taskText.Replace("\n", " ");
                 if (taskText.Length > 34)
                     taskText = taskText.Substring(0, 30) + "... ";
                 row += taskText + new string(' ', 34 - taskText.Length);
@@ -405,7 +409,6 @@ namespace Todolist
                 Console.WriteLine(row);
             }
         }
-
     }
 
     class Person
@@ -422,6 +425,5 @@ namespace Todolist
             YearBirth = yearBirth;
             Age = age;
         }
-
     }
 }
