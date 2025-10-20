@@ -4,11 +4,8 @@ namespace Todolist
 {
     class Program
     {
-        private static Person user;
-        private static string[] todos = new string[2];
-        private static bool[] statuses = new bool[2];
-        private static DateTime[] dates = new DateTime[2];
-        private static int taskCount = 0;
+        private static Profile user;
+        private static Todolist todoList = new Todolist();
 
         static void Main(string[] args)
         {
@@ -36,72 +33,36 @@ namespace Todolist
                         break;
 
                     case "add":
-                        if (partInput.Length > 1)
-                        {
-                            AddTask(partInput[1]);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Неправильный формат, должен быть: add \"текст задачи\" или add текст задачи");
-                        }
+                        if (partInput.Length > 1) { AddTask(partInput[1]); }
+                        else { Console.WriteLine("Неправильный формат, должен быть: add \"текст задачи\" или add текст задачи"); }
                         break;
 
                     
                     case "read":
-                        if (partInput.Length > 1)
-                        {
-                            ReadTask(partInput[1]);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Неправильный формат, должен быть: read номер_задачи");
-                        }
+                        if (partInput.Length > 1) { ReadTask(partInput[1]); }
+                        else { Console.WriteLine("Неправильный формат, должен быть: read номер_задачи"); }
                         break;
 
                     case "view":
                         string flags;
-                        if (partInput.Length > 1)
-                        {
-                            flags = partInput[1];
-                        }
-                        else
-                        {
-                            flags = "";
-                        }
+                        if (partInput.Length > 1) { flags = partInput[1]; }
+                        else { flags = ""; }
                         TasksView(flags);
                         break;
 
                     case "done":
-                        if (partInput.Length > 1)
-                        {
-                            TaskID(partInput[1]);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Неправильный формат, должен быть: done номер_задачи");
-                        }
+                        if (partInput.Length > 1) { TaskID(partInput[1]); }
+                        else { Console.WriteLine("Неправильный формат, должен быть: done номер_задачи"); }
                         break;
 
                     case "delete":
-                        if (partInput.Length > 1)
-                        {
-                            DeleteTask(partInput[1]);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Неправильный формат, должен быть: delete номер_задачи");
-                        }
+                        if (partInput.Length > 1) { DeleteTask(partInput[1]); }
+                        else { Console.WriteLine("Неправильный формат, должен быть: delete номер_задачи"); }
                         break;
 
                     case "update":
-                        if (partInput.Length > 1)
-                        {
-                            UpdateTask(partInput[1]);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст");
-                        }
+                        if (partInput.Length > 1) { UpdateTask(partInput[1]); }
+                        else { Console.WriteLine("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст"); }
                         break;
 
                     case "exit":
@@ -119,16 +80,15 @@ namespace Todolist
             if (Regex.IsMatch(taskText, @"^\d+$"))
             {
                 int taskNumber = int.Parse(taskText);
-                if (taskNumber > 0 && taskNumber <= taskCount)
+                if (taskNumber > 0 && taskNumber <= todoList.GetCount())
                 {
-                    int taskIndex = taskNumber - 1;
-                    statuses[taskIndex] = true;
-                    dates[taskIndex] = DateTime.Now;
+                    TodoItem item = todoList.GetItem(taskNumber - 1);
+                    item.MarkDone();
                     Console.WriteLine($"Задача №{taskNumber} отмечена как выполненная");
                 }
                 else
                 {
-                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {taskCount}");
+                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
                 }
 
             }
@@ -143,28 +103,15 @@ namespace Todolist
             if (Regex.IsMatch(taskText, @"^\d+$"))
             {
                 int taskNumber = int.Parse(taskText);
-                if (taskNumber > 0 && taskNumber <= taskCount)
+                if (taskNumber > 0 && taskNumber <= todoList.GetCount())
                 {
-                    int taskIndex = taskNumber - 1;
-                    string deletedTask = todos[taskIndex];
-                    
-                    for (int i = taskIndex; i < taskCount - 1; i++)
-                    {
-                        todos[i] = todos[i + 1];
-                        statuses[i] = statuses[i + 1];
-                        dates[i] = dates[i + 1];
-                    }
-                    
-                    todos[taskCount - 1] = null;
-                    statuses[taskCount - 1] = false;
-                    dates[taskCount - 1] = DateTime.MinValue;
-                    
-                    taskCount--;
-                    Console.WriteLine($"Задача №{taskNumber} '{deletedTask}' удалена");
+                    TodoItem item = todoList.GetItem(taskNumber - 1);
+                    todoList.Delete(taskNumber - 1);
+                    Console.WriteLine($"Задача №{taskNumber} '{item.Text}' удалена");
                 }
                 else
                 {
-                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {taskCount}");
+                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
                 }
             }
             else
@@ -186,9 +133,9 @@ namespace Todolist
             if (Regex.IsMatch(parts[0], @"^\d+$"))
             {
                 int taskNumber = int.Parse(parts[0]);
-                if (taskNumber > 0 && taskNumber <= taskCount)
+                if (taskNumber > 0 && taskNumber <= todoList.GetCount())
                 {
-                    int taskIndex = taskNumber - 1;
+                    TodoItem item = todoList.GetItem(taskNumber - 1);
                     string newText = parts[1];
                     
                     if (newText.StartsWith("\"") && newText.EndsWith("\""))
@@ -196,15 +143,14 @@ namespace Todolist
                         newText = newText.Substring(1, newText.Length - 2);
                     }
                     
-                    string oldText = todos[taskIndex];
-                    todos[taskIndex] = newText;
-                    dates[taskIndex] = DateTime.Now;
+                    string oldText = item.Text;
+                    item.UpdateText(newText);
                     
                     Console.WriteLine($"Обновил задачу: \nБыло: Задача №{taskNumber} \"{oldText}\" \nСтало: Задача №{taskNumber} \"{newText}\"");
                 }
                 else
                 {
-                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {taskCount}");
+                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
                 }
             }
             else
@@ -225,11 +171,9 @@ namespace Todolist
             Console.Write("Введите ваш год рождения: ");
             int yearBirth = int.Parse(Console.ReadLine());
 
-            int age = DateTime.Now.Year - yearBirth;
+            user = new Profile(firstName, lastName, yearBirth);
 
-            user = new Person(firstName, lastName, yearBirth, age);
-
-            Console.WriteLine($"Добавлен пользователь {firstName} {lastName}, Год рождения: {yearBirth}, возраст – {age}");
+            Console.WriteLine($"Добавлен пользователь: {user.GetInfo()}");
             Console.WriteLine();
 
         }
@@ -259,9 +203,7 @@ namespace Todolist
         {
             if (user != null)
             {
-                Console.WriteLine($"Пользователь: {user.FirstName} {user.LastName}");
-                Console.WriteLine($"Год рождения: {user.YearBirth}");
-                Console.WriteLine($"Возраст: {user.Age}");
+                Console.WriteLine(user.GetInfo());
             }
             else
             {
@@ -285,16 +227,9 @@ namespace Todolist
                     line = Console.ReadLine();
                 }
 
-                if (taskCount >= todos.Length)
-                {
-                    ExpandAllArrays();
-                }
-
-                todos[taskCount] = multilineText.Trim();
-                statuses[taskCount] = false;
-                dates[taskCount] = DateTime.Now;
-                taskCount++;
-                Console.WriteLine($"Добавлена задача №{taskCount}: {multilineText.Trim()}");
+                TodoItem newItem = new TodoItem(multilineText.Trim());
+                todoList.Add(newItem);
+                Console.WriteLine($"Добавлена задача №{todoList.GetCount()}: {multilineText.Trim()}");
             }
             else
             {
@@ -303,58 +238,25 @@ namespace Todolist
                     taskText = taskText.Substring(1, taskText.Length - 2);
                 }
 
-                if (taskCount >= todos.Length)
-                {
-                    ExpandAllArrays();
-                }
-
-                todos[taskCount] = taskText;
-                statuses[taskCount] = false;
-                dates[taskCount] = DateTime.Now;
-                taskCount++;
-                Console.WriteLine($"Добавлена задача №{taskCount}: {taskText}");
+                TodoItem newItem = new TodoItem(taskText);
+                todoList.Add(newItem);
+                Console.WriteLine($"Добавлена задача №{todoList.GetCount()}: {taskText}");
             }
         }
-
-        static void ExpandAllArrays()
-        {
-            int newSize = todos.Length * 2;
-
-            string[] newTodos = new string[newSize];
-            bool[] newStatuses = new bool[newSize];
-            DateTime[] newDates = new DateTime[newSize];
-
-            for (int i = 0; i < todos.Length; i++)
-            {
-                newTodos[i] = todos[i];
-                newStatuses[i] = statuses[i];
-                newDates[i] = dates[i];
-            }
-
-            todos = newTodos;
-            statuses = newStatuses;
-            dates = newDates;
-
-            Console.WriteLine($"Массивы увеличены до {newSize} элементов");
-        }
-
 
         static void ReadTask(string taskText)
         {
             if (Regex.IsMatch(taskText, @"^\d+$"))
             {
                 int taskNumber = int.Parse(taskText);
-                if (taskNumber > 0 && taskNumber <= taskCount)
+                if (taskNumber > 0 && taskNumber <= todoList.GetCount())
                 {
-                    int taskIndex = taskNumber - 1;
-                    Console.WriteLine($"Задача №{taskNumber}:");
-                    Console.WriteLine($"Текст: {todos[taskIndex]}");
-                    Console.WriteLine($"Статус: {(statuses[taskIndex] ? "Выполнена" : "Не выполнена")}");
-                    Console.WriteLine($"Дата изменения: {dates[taskIndex]}");
+                    TodoItem item = todoList.GetItem(taskNumber - 1);
+                    Console.WriteLine(item.GetFullInfo());
                 }
                 else
                 {
-                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {taskCount}");
+                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
                 }
             }
             else
@@ -365,7 +267,7 @@ namespace Todolist
 
         static void TasksView(string flags)
         {
-            if (taskCount == 0)
+            if (todoList.GetCount() == 0)
             {
                 Console.WriteLine("Задачи отсутствуют");
                 return;
@@ -377,53 +279,7 @@ namespace Todolist
 
             if (showAll) showIndex = showStatus = showDate = true;
 
-            string header = "";
-            if (showIndex) header += "№       ";
-            if (showStatus) header += "Статус     ";
-            header += "Задача                            ";
-            if (showDate) header += "Дата изменения  ";
-
-            Console.WriteLine(header);
-            Console.WriteLine(new string('-', header.Length));
-
-            for (int i = 0; i < taskCount; i++)
-            {
-                string row = "";
-
-                if (showIndex) row += $"{i + 1}       ".Substring(0, 8);
-
-                if (showStatus)
-                {
-                    string statusText = statuses[i] ? "Сделано    " : "Не сделано ";
-                    row += statusText;
-                }
-
-                string taskText = todos[i];
-                taskText = taskText.Replace("\n", " ");
-                if (taskText.Length > 34)
-                    taskText = taskText.Substring(0, 30) + "... ";
-                row += taskText + new string(' ', 34 - taskText.Length);
-
-                if (showDate) row += $"{dates[i]} ";
-
-                Console.WriteLine(row);
-            }
-        }
-    }
-
-    class Person
-    {
-        public string FirstName { get; }
-        public string LastName { get; }
-        public int YearBirth { get; }
-        public int Age { get; }
-
-        public Person(string firstName, string lastName, int yearBirth, int age)
-        {
-            FirstName = firstName;
-            LastName = lastName;
-            YearBirth = yearBirth;
-            Age = age;
+            todoList.View(showIndex, showStatus, showDate);
         }
     }
 }
