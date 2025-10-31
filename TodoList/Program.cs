@@ -33,36 +33,36 @@ namespace Todolist
                         break;
 
                     case "add":
-                        if (partInput.Length > 1) { AddTask(partInput[1]); }
-                        else { Console.WriteLine("Неправильный формат, должен быть: add \"текст задачи\" или add текст задачи"); }
+                        if (partInput.Length > 1) AddTask(partInput[1]);
+                        else Console.WriteLine("Неправильный формат, должен быть: add \"текст задачи\" или add текст задачи");
                         break;
 
                     
                     case "read":
-                        if (partInput.Length > 1) { ReadTask(partInput[1]); }
-                        else { Console.WriteLine("Неправильный формат, должен быть: read номер_задачи"); }
+                        if (partInput.Length > 1) ReadTask(partInput[1]);
+                        else Console.WriteLine("Неправильный формат, должен быть: read номер_задачи");
                         break;
 
                     case "view":
                         string flags;
-                        if (partInput.Length > 1) { flags = partInput[1]; }
-                        else { flags = ""; }
+                        if (partInput.Length > 1) flags = partInput[1];
+                        else flags = "";
                         TasksView(flags);
                         break;
 
                     case "done":
-                        if (partInput.Length > 1) { TaskID(partInput[1]); }
-                        else { Console.WriteLine("Неправильный формат, должен быть: done номер_задачи"); }
+                        if (partInput.Length > 1) TaskID(partInput[1]);
+                        else Console.WriteLine("Неправильный формат, должен быть: done номер_задачи");
                         break;
 
                     case "delete":
-                        if (partInput.Length > 1) { DeleteTask(partInput[1]); }
-                        else { Console.WriteLine("Неправильный формат, должен быть: delete номер_задачи"); }
+                        if (partInput.Length > 1) DeleteTask(partInput[1]);
+                        else Console.WriteLine("Неправильный формат, должен быть: delete номер_задачи");
                         break;
 
                     case "update":
-                        if (partInput.Length > 1) { UpdateTask(partInput[1]); }
-                        else { Console.WriteLine("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст"); }
+                        if (partInput.Length > 1) UpdateTask(partInput[1]);
+                        else Console.WriteLine("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст");
                         break;
 
                     case "exit":
@@ -77,85 +77,45 @@ namespace Todolist
         }
         static void TaskID(string taskText)
         {
-            if (Regex.IsMatch(taskText, @"^\d+$"))
+            if (ValidationNumber(taskText, out TodoItem item, out int taskNumber))
             {
-                int taskNumber = int.Parse(taskText);
-                if (taskNumber > 0 && taskNumber <= todoList.GetCount())
-                {
-                    TodoItem item = todoList.GetItem(taskNumber - 1);
-                    item.MarkDone();
-                    Console.WriteLine($"Задача №{taskNumber} отмечена как выполненная");
-                }
-                else
-                {
-                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
-                }
-
-            }
-            else
-            {
-                Console.WriteLine("Номер задачи должен быть числом");
+                item.MarkDone();
+                Console.WriteLine($"Задача №{taskNumber} отмечена как выполненная");
             }
         }
 
         static void DeleteTask(string taskText)
         {
-            if (Regex.IsMatch(taskText, @"^\d+$"))
+            if (ValidationNumber(taskText, out TodoItem item, out int taskNumber))
             {
-                int taskNumber = int.Parse(taskText);
-                if (taskNumber > 0 && taskNumber <= todoList.GetCount())
-                {
-                    TodoItem item = todoList.GetItem(taskNumber - 1);
-                    todoList.Delete(taskNumber - 1);
-                    Console.WriteLine($"Задача №{taskNumber} '{item.Text}' удалена");
-                }
-                else
-                {
-                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Номер задачи должен быть числом");
+                todoList.Delete(taskNumber - 1);
+                Console.WriteLine($"Задача №{taskNumber} '{item.Text}' удалена");
             }
         }
 
         static void UpdateTask(string taskText)
         {
             string[] parts = taskText.Split(' ', 2);
-            
+
             if (parts.Length < 2)
             {
                 Console.WriteLine("Не указан новый текст задачи");
                 return;
             }
 
-            if (Regex.IsMatch(parts[0], @"^\d+$"))
+            if (ValidationNumber(parts[0], out TodoItem item, out int taskNumber))
             {
-                int taskNumber = int.Parse(parts[0]);
-                if (taskNumber > 0 && taskNumber <= todoList.GetCount())
+                string newText = parts[1];
+
+                if (newText.StartsWith("\"") && newText.EndsWith("\""))
                 {
-                    TodoItem item = todoList.GetItem(taskNumber - 1);
-                    string newText = parts[1];
-                    
-                    if (newText.StartsWith("\"") && newText.EndsWith("\""))
-                    {
-                        newText = newText.Substring(1, newText.Length - 2);
-                    }
-                    
-                    string oldText = item.Text;
-                    item.UpdateText(newText);
-                    
-                    Console.WriteLine($"Обновил задачу: \nБыло: Задача №{taskNumber} \"{oldText}\" \nСтало: Задача №{taskNumber} \"{newText}\"");
+                    newText = newText.Substring(1, newText.Length - 2);
                 }
-                else
-                {
-                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Номер задачи должен быть числом");
+
+                string oldText = item.Text;
+                item.UpdateText(newText);
+
+                Console.WriteLine($"Обновил задачу: \nБыло: Задача №{taskNumber} \"{oldText}\" \nСтало: Задача №{taskNumber} \"{newText}\"");
             }
         }
 
@@ -246,22 +206,9 @@ namespace Todolist
 
         static void ReadTask(string taskText)
         {
-            if (Regex.IsMatch(taskText, @"^\d+$"))
+            if (ValidationNumber(taskText, out TodoItem item, out int taskNumber))
             {
-                int taskNumber = int.Parse(taskText);
-                if (taskNumber > 0 && taskNumber <= todoList.GetCount())
-                {
-                    TodoItem item = todoList.GetItem(taskNumber - 1);
-                    Console.WriteLine(item.GetFullInfo());
-                }
-                else
-                {
-                    Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Номер задачи должен быть числом");
+                Console.WriteLine(item.GetFullInfo());
             }
         }
 
@@ -280,6 +227,28 @@ namespace Todolist
             if (showAll) showIndex = showStatus = showDate = true;
 
             todoList.View(showIndex, showStatus, showDate);
+        }
+
+        private static bool ValidationNumber(string taskText, out TodoItem item, out int taskNumber)
+        {
+            item = null;
+            taskNumber = 0;
+            
+            if (!Regex.IsMatch(taskText, @"^\d+$"))
+            {
+                Console.WriteLine("Номер задачи должен быть числом");
+                return false;
+            }
+            
+            taskNumber = int.Parse(taskText);
+            if (taskNumber <= 0 || taskNumber > todoList.GetCount())
+            {
+                Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
+                return false;
+            }
+            
+            item = todoList.GetItem(taskNumber - 1);
+            return true;
         }
     }
 }
