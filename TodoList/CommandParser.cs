@@ -51,6 +51,9 @@ namespace Todolist
                     Console.WriteLine("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст");
                     return null;
 
+                case "exit":
+                    return new ExitCommand();
+
                 default:
                     Console.WriteLine($"Неизвестная команда: {command}");
                     Console.WriteLine("Введите 'help' для просмотра доступных команд");
