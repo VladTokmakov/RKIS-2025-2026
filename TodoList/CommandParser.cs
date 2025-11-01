@@ -23,6 +23,9 @@ namespace Todolist
                     if (arguments == "--multiline" || arguments == "-m") return new AddCommand(todoList, "", true);
                     else return new AddCommand(todoList, arguments);
 
+                case "add_user":
+                    return new SetDataUserCommand();
+
                 case "read":
                     if (int.TryParse(arguments, out int readTaskNumber)) return new ReadCommand(todoList, readTaskNumber);
                     Console.WriteLine("Неправильный формат, должен быть: read номер_задачи");
