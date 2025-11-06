@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 namespace Todolist
 {
     public static class CommandParser
@@ -27,7 +28,7 @@ namespace Todolist
                     return new SetDataUserCommand();
 
                 case "read":
-                    if (int.TryParse(arguments, out int readTaskNumber)) return new ReadCommand(todoList, readTaskNumber);
+                    if (ValidationNumber(arguments, todoList, out TodoItem readItem, out int readTaskNumber)) return new ReadCommand(todoList, readTaskNumber);
                     Console.WriteLine("Неправильный формат, должен быть: read номер_задачи");
                     return null;
 
@@ -39,18 +40,18 @@ namespace Todolist
                     return new ViewCommand(todoList, showIndex, showStatus, showDate, showAll);
 
                 case "done":
-                    if (int.TryParse(arguments, out int doneTaskNumber)) return new DoneCommand(todoList, doneTaskNumber);
+                    if (ValidationNumber(arguments, todoList, out TodoItem doneItem, out int doneTaskNumber)) return new DoneCommand(todoList, doneTaskNumber);
                     Console.WriteLine("Неправильный формат, должен быть: done номер_задачи");
                     return null;
 
                 case "delete":
-                    if (int.TryParse(arguments, out int deleteTaskNumber)) return new DeleteCommand(todoList, deleteTaskNumber);
+                    if (ValidationNumber(arguments, todoList, out TodoItem deleteItem, out int deleteTaskNumber)) return new DeleteCommand(todoList, deleteTaskNumber);
                     Console.WriteLine("Неправильный формат, должен быть: delete номер_задачи");
                     return null;
 
                 case "update":
                     string[] updateParts = arguments.Split(' ', 2);
-                    if (updateParts.Length == 2 && int.TryParse(updateParts[0], out int updateTaskNumber)) return new UpdateCommand(todoList, updateTaskNumber, updateParts[1]);
+                    if (updateParts.Length == 2 && ValidationNumber(updateParts[0], todoList, out TodoItem updateItem, out int updateTaskNumber)) return new UpdateCommand(todoList, updateTaskNumber, updateParts[1]);
                     Console.WriteLine("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст");
                     return null;
 
@@ -62,6 +63,27 @@ namespace Todolist
                     Console.WriteLine("Введите 'help' для просмотра доступных команд");
                     return null;
             }
+        }
+
+        private static bool ValidationNumber(string taskText, Todolist todoList, out TodoItem item, out int taskNumber)
+        {
+            item = null;
+            taskNumber = 0;
+
+            if (!int.TryParse(taskText, out taskNumber))
+            {
+                Console.WriteLine("Номер задачи должен быть числом");
+                return false;
+            }
+
+            if (taskNumber <= 0 || taskNumber > todoList.GetCount())
+            {
+                Console.WriteLine($"Неверный номер задачи. Должен быть от 1 до {todoList.GetCount()}");
+                return false;
+            }
+
+            item = todoList.GetItem(taskNumber - 1);
+            return true;
         }
     }
 }
