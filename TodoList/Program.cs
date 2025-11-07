@@ -23,7 +23,11 @@ namespace Todolist
                 string input = Console.ReadLine().Trim();
 
                 ICommand command = CommandParser.Parse(input, todoList, user);
-                if (command != null) command.Execute();
+                if (command != null)
+                {
+                    command.Execute();
+                    if (command is SetDataUserCommand setUserCommand) user = setUserCommand.User;
+                }
             }
         }
 

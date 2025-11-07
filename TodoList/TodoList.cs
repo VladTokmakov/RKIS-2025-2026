@@ -4,11 +4,13 @@ namespace Todolist
     {
         private TodoItem[] items;
         private int count;
+        private bool startedWork;
 
         public Todolist(int capacity = 2)
         {
             items = new TodoItem[capacity];
             count = 0;
+            startedWork = true;
         }
 
         public void Add(TodoItem item)
@@ -75,18 +77,23 @@ namespace Todolist
             return count;
         }
 
+        public void FinishStartedWork()
+        {
+            startedWork = false;
+        }
+
         private void IncreaseArray()
         {
             int newSize = items.Length * 2;
             TodoItem[] newArray = new TodoItem[newSize];
-            
+
             for (int i = 0; i < items.Length; i++)
             {
                 newArray[i] = items[i];
             }
-            
+
             items = newArray;
-            Console.WriteLine($"Массив увеличен до {newSize} элементов");
+            if (!startedWork) Console.WriteLine($"Массив увеличен до {newSize} элементов");
         }
     }
 }
