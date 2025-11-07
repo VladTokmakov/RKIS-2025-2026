@@ -3,6 +3,12 @@ namespace Todolist
     public class SetDataUserCommand : ICommand
     {
         public Profile User { get; private set; }
+        private readonly string ProfileFilePath;
+
+        public SetDataUserCommand(string profileFilePath = null)
+        {
+            ProfileFilePath = profileFilePath;
+        }
 
         public void Execute()
         {
@@ -19,6 +25,9 @@ namespace Todolist
 
             Console.WriteLine($"Добавлен пользователь: {User.GetInfo()}");
             Console.WriteLine();
+
+            if (!string.IsNullOrEmpty(ProfileFilePath)) FileManager.SaveProfile(User, ProfileFilePath);
+
         }
     }
 }
