@@ -6,12 +6,14 @@ namespace Todolist
         public bool IsMultiline { get; private set; }
         public string TaskText { get; private set; }
         public Todolist TodoList { get; private set; }
+        private readonly string TodoFilePath;
 
-        public AddCommand(Todolist todoList, string taskText, bool isMultiline = false)
+        public AddCommand(Todolist todoList, string taskText, bool isMultiline = false, string todoFilePath = null)
         {
             TodoList = todoList;
             TaskText = taskText;
             IsMultiline = isMultiline;
+            TodoFilePath = todoFilePath;
         }
 
         public void Execute()
@@ -45,6 +47,8 @@ namespace Todolist
                 TodoList.Add(newItem);
                 Console.WriteLine($"Добавлена задача №{TodoList.GetCount()}: {TaskText}");
             }
+
+            if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
         }
     }
 }
