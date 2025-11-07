@@ -4,6 +4,15 @@ namespace Todolist
 {
     public static class CommandParser
     {
+        private static string TodoFilePath;
+        private static string ProfileFilePath;
+
+        public static void SetFilePaths(string todoFilePath, string profileFilePath)
+        {
+            TodoFilePath = todoFilePath;
+            ProfileFilePath = profileFilePath;
+        }
+
         public static ICommand Parse(string input, Todolist todoList, Profile profile)
         {
             string[] parts = input.Split(' ', 2);
@@ -21,11 +30,11 @@ namespace Todolist
                     return new ProfileCommand(profile);
 
                 case "add":
-                    if (arguments == "--multiline" || arguments == "-m") return new AddCommand(todoList, "", true);
-                    else return new AddCommand(todoList, arguments);
+                    if (arguments == "--multiline" || arguments == "-m") return new AddCommand(todoList, "", true, TodoFilePath);
+                    else return new AddCommand(todoList, arguments, false, TodoFilePath);
 
                 case "add_user":
-                    return new SetDataUserCommand();
+                    return new SetDataUserCommand(ProfileFilePath);
 
                 case "read":
                     if (ValidationNumber(arguments, todoList, out TodoItem readItem, out int readTaskNumber)) return new ReadCommand(todoList, readTaskNumber);
@@ -40,18 +49,18 @@ namespace Todolist
                     return new ViewCommand(todoList, showIndex, showStatus, showDate, showAll);
 
                 case "done":
-                    if (ValidationNumber(arguments, todoList, out TodoItem doneItem, out int doneTaskNumber)) return new DoneCommand(todoList, doneTaskNumber);
+                    if (ValidationNumber(arguments, todoList, out TodoItem doneItem, out int doneTaskNumber)) return new DoneCommand(todoList, doneTaskNumber, TodoFilePath);
                     Console.WriteLine("Неправильный формат, должен быть: done номер_задачи");
                     return null;
 
                 case "delete":
-                    if (ValidationNumber(arguments, todoList, out TodoItem deleteItem, out int deleteTaskNumber)) return new DeleteCommand(todoList, deleteTaskNumber);
+                    if (ValidationNumber(arguments, todoList, out TodoItem deleteItem, out int deleteTaskNumber)) return new DeleteCommand(todoList, deleteTaskNumber, TodoFilePath);
                     Console.WriteLine("Неправильный формат, должен быть: delete номер_задачи");
                     return null;
 
                 case "update":
                     string[] updateParts = arguments.Split(' ', 2);
-                    if (updateParts.Length == 2 && ValidationNumber(updateParts[0], todoList, out TodoItem updateItem, out int updateTaskNumber)) return new UpdateCommand(todoList, updateTaskNumber, updateParts[1]);
+                    if (updateParts.Length == 2 && ValidationNumber(updateParts[0], todoList, out TodoItem updateItem, out int updateTaskNumber)) return new UpdateCommand(todoList, updateTaskNumber, updateParts[1], TodoFilePath);
                     Console.WriteLine("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст");
                     return null;
 
