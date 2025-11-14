@@ -53,6 +53,26 @@ namespace Todolist
                     Console.WriteLine("Неправильный формат, должен быть: done номер_задачи");
                     return null;
 
+                case "status":
+                    string[] statusParts = arguments.Split(' ');
+                    if (statusParts.Length == 2 && ValidationNumber(statusParts[0], todoList, out TodoItem statusItem, out int statusTaskNumber))
+                    {
+                        if (Enum.TryParse<TodoStatus>(statusParts[1], true, out TodoStatus status))
+                        {
+                            return new StatusCommand(todoList, statusTaskNumber, status, TodoFilePath);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Неизвестный статус: {statusParts[1]}");
+                            Console.WriteLine("Доступные статусы: NotStarted, InProgress, Completed, Postponed, Failed");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Неправильный формат, должен быть: status номер_задачи статус");
+                    }
+                    return null;
+
                 case "delete":
                     if (ValidationNumber(arguments, todoList, out TodoItem deleteItem, out int deleteTaskNumber)) return new DeleteCommand(todoList, deleteTaskNumber, TodoFilePath);
                     Console.WriteLine("Неправильный формат, должен быть: delete номер_задачи");
