@@ -13,7 +13,7 @@ namespace Todolist
             add     - добавляет новую задачу (флаги -m --multiline - многострочный режим)
             read    - полный просмотр задачи
             view    - выводит все задачи из массива
-            done    - отмечает задачу выполненной
+            status  - изменяет статус задачи
             delete  - удаляет задачу по индексу
             update  - обновляет текст задачи
             exit    - завершает программу
@@ -23,6 +23,9 @@ namespace Todolist
             -s, --status      - показывать статус задачи
             -d, --update-date - показывать дату изменения
             -a, --all         - показывать все данные
+
+            Cтатусы задач для комманды 'status':
+            NotStarted, InProgress, Completed, Postponed, Failed
             """);
         }
     }
