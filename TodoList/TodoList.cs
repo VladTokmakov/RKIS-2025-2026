@@ -1,41 +1,42 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
 namespace Todolist
 {
-    public class Todolist
+    public class Todolist : IEnumerable<TodoItem>
     {
-        private TodoItem[] items;
-        private int count;
-        private bool startedWork;
+        private List<TodoItem> items;
 
-        public Todolist(int capacity = 2)
+        public Todolist()
         {
-            items = new TodoItem[capacity];
-            count = 0;
-            startedWork = true;
+            items = new List<TodoItem>();
         }
 
         public void Add(TodoItem item)
         {
-            if (count >= items.Length)
-            {
-                IncreaseArray();
-            }
-            items[count] = item;
-            count++;
+            items.Add(item);
         }
 
         public void Delete(int index)
         {
-            for (int i = index; i < count - 1; i++)
-            {
-                items[i] = items[i + 1];
-            }
-            items[count - 1] = null;
-            count--;
+            if (index < 0 || index >= items.Count)
+                throw new ArgumentOutOfRangeException();
+
+            items.RemoveAt(index);
         }
 
-        public void View(bool showIndex, bool showDone, bool showDate)
+        public void SetStatus(int index, TodoStatus status)
         {
-            if (count == 0)
+            if (index < 0 || index >= items.Count)
+                throw new ArgumentOutOfRangeException();
+
+            items[index].SetStatus(status);
+        }
+
+        public void View(bool showIndex, bool showStatus, bool showDate)
+        {
+            if (items.Сount == 0)
             {
                 Console.WriteLine("Задачи отсутствуют");
                 return;
@@ -45,12 +46,12 @@ namespace Todolist
             if (showIndex) header += "№       ";
             header += "Задача                            ";
             if (showDate) header += "Дата изменения        ";
-            if (showDone) header += "Статус";
+            if (showStatus) header += "Статус";
 
             Console.WriteLine(header);
             Console.WriteLine(new string('-', header.Length));
 
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < items.Count; i++)
             {
                 string row = "";
 
@@ -61,7 +62,7 @@ namespace Todolist
 
                 if (showDate) row += $"{items[i].LastUpdate} ";
 
-                if (showDone) row += $"{(items[i].IsDone ? "Выполнена" : "Не выполнена")}";
+                if (showStatus) row += $"{items[i].Status}";
 
                 Console.WriteLine(row);
             }
@@ -69,31 +70,37 @@ namespace Todolist
 
         public TodoItem GetItem(int index)
         {
+            if (index < 0 || index >= items.Count)
+                throw new ArgumentOutOfRangeException();
+
             return items[index];
         }
 
         public int GetCount()
         {
-            return count;
+            return items.Count;
         }
 
-        public void FinishStartedWork()
+        public TodoItem this[int index]
         {
-            startedWork = false;
-        }
-
-        private void IncreaseArray()
-        {
-            int newSize = items.Length * 2;
-            TodoItem[] newArray = new TodoItem[newSize];
-
-            for (int i = 0; i < items.Length; i++)
+            get
             {
-                newArray[i] = items[i];
+                if (index < 0 || index >= items.Count)
+                    throw new ArgumentOutOfRangeException();
+                return items[index];
             }
-
-            items = newArray;
-            if (!startedWork) Console.WriteLine($"Массив увеличен до {newSize} элементов");
         }
+
+        public IEnumerator<TodoItem> GetEnumerator()
+        {
+            foreach (var item in items)
+            {
+                yield return item;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
     }
 }

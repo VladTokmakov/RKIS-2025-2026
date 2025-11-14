@@ -3,20 +3,20 @@ namespace Todolist
     public class TodoItem
     {
         public string Text { get; private set; }
-        public bool IsDone { get; private set; }
+        public TodoStatus Status { get; private set; }
         public DateTime LastUpdate { get; private set; }
 
         public TodoItem(string text)
         {
             Text = text;
-            IsDone = false;
+            Status = TodoStatus.NotStarted;
             LastUpdate = DateTime.Now;
         }
 
-        public TodoItem(string text, bool isDone, DateTime lastUpdate)
+        public TodoItem(string text, TodoStatus status, DateTime lastUpdate)
         {
             Text = text;
-            IsDone = isDone;
+            Status = status;
             LastUpdate = lastUpdate;
         }
 
@@ -25,9 +25,9 @@ namespace Todolist
             LastUpdate = dateTime;
         }
 
-        public void MarkDone(bool updateTime = true)
+        public void SetStatus(TodoStatus status, bool updateTime = true)
         {
-            IsDone = true;
+            Status = status;
             if (updateTime)
             {
                 LastUpdate = DateTime.Now;
