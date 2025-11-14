@@ -13,10 +13,25 @@ namespace Todolist
             LastUpdate = DateTime.Now;
         }
 
-        public void MarkDone()
+        public TodoItem(string text, bool isDone, DateTime lastUpdate)
+        {
+            Text = text;
+            IsDone = isDone;
+            LastUpdate = lastUpdate;
+        }
+
+        public void SetLastUpdate(DateTime dateTime)
+        {
+            LastUpdate = dateTime;
+        }
+
+        public void MarkDone(bool updateTime = true)
         {
             IsDone = true;
-            LastUpdate = DateTime.Now;
+            if (updateTime)
+            {
+                LastUpdate = DateTime.Now;
+            }
         }
 
         public void UpdateText(string newText)

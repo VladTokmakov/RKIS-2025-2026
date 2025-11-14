@@ -43,7 +43,7 @@ namespace Todolist
             {
                 TodoItem item = todos.GetItem(i);
                 string escapedText = EscapeCsv(item.Text);
-                string line = $"{i + 1};{escapedText};{item.IsDone};{item.LastUpdate:yyyy-MM-ddTHH:mm:ss}";
+                string line = $"{i + 1};{item.IsDone};{item.LastUpdate:yyyy-MM-ddTHH:mm:ss};{escapedText}";
                 csvLines[i] = line;
             }
             File.WriteAllLines(filePath, csvLines);
@@ -54,22 +54,25 @@ namespace Todolist
             Todolist todos = new Todolist();
             if (!File.Exists(filePath)) return todos;
             string[] lines = File.ReadAllLines(filePath);
-            
+
             foreach (string line in lines)
             {
                 string[] parts = line.Split(';');
-                
+
                 if (parts.Length >= 4)
                 {
-                    string text = UnescapeCsv(parts[1]);
-                    bool isDone = bool.Parse(parts[2]);
-                    DateTime lastUpdate = DateTime.Parse(parts[3]);
-                    
-                    TodoItem item = new TodoItem(text);
-                    if (isDone) item.MarkDone();
+                    int index = int.Parse(parts[0]);
+                    bool isDone = bool.Parse(parts[1]);
+                    DateTime lastUpdate = DateTime.Parse(parts[2]);
+
+                    string text = string.Join(";", parts, 3, parts.Length - 3);
+                    text = UnescapeCsv(text);
+
+                    TodoItem item = new TodoItem(text, isDone, lastUpdate);
                     todos.Add(item);
                 }
             }
+            todos.FinishStartedWork();
             return todos;
         }
 
