@@ -36,7 +36,7 @@ namespace Todolist
 
         public void View(bool showIndex, bool showStatus, bool showDate)
         {
-            if (items.Сount == 0)
+            if (items.Count == 0)
             {
                 Console.WriteLine("Задачи отсутствуют");
                 return;
@@ -100,7 +100,5 @@ namespace Todolist
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
     }
 }

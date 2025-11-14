@@ -37,14 +37,16 @@ namespace Todolist
 
         public static void SaveTodos(Todolist todos, string filePath)
         {
-            string[] csvLines = new string[todos.GetCount()];
+            if (todos == null) return;
+            List<string> csvLines = new List<string>();
+            int index = 1;
             
-            for (int i = 0; i < todos.GetCount(); i++)
+            foreach (var item in todos)
             {
-                TodoItem item = todos.GetItem(i);
                 string escapedText = EscapeCsv(item.Text);
-                string line = $"{i + 1};{item.IsDone};{item.LastUpdate:yyyy-MM-ddTHH:mm:ss};{escapedText}";
-                csvLines[i] = line;
+                string line = $"{index};{item.Status};{item.LastUpdate:yyyy-MM-ddTHH:mm:ss};{escapedText}";
+                csvLines.Add(line);
+                index++;
             }
             File.WriteAllLines(filePath, csvLines);
         }
@@ -61,18 +63,16 @@ namespace Todolist
 
                 if (parts.Length >= 4)
                 {
-                    int index = int.Parse(parts[0]);
-                    bool isDone = bool.Parse(parts[1]);
+                    TodoStatus status = Enum.Parse<TodoStatus>(parts[1]);
                     DateTime lastUpdate = DateTime.Parse(parts[2]);
 
                     string text = string.Join(";", parts, 3, parts.Length - 3);
                     text = UnescapeCsv(text);
 
-                    TodoItem item = new TodoItem(text, isDone, lastUpdate);
+                    TodoItem item = new TodoItem(text, status, lastUpdate);
                     todos.Add(item);
                 }
             }
-            todos.FinishStartedWork();
             return todos;
         }
 

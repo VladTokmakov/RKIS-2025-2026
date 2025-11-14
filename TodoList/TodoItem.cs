@@ -50,7 +50,7 @@ namespace Todolist
 
         public string GetFullInfo()
         {
-            return $"Задача: {Text}\nСтатус: {(IsDone ? "Выполнена" : "Не выполнена")}\nДата изменения: {LastUpdate}";
+            return $"Задача: {Text}\nСтатус: {Status}\nДата изменения: {LastUpdate}";
         }
     }
 }

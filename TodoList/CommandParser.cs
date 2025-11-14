@@ -48,11 +48,6 @@ namespace Todolist
                     bool showAll = arguments.Contains("-a") || arguments.Contains("--all");
                     return new ViewCommand(todoList, showIndex, showStatus, showDate, showAll);
 
-                case "done":
-                    if (ValidationNumber(arguments, todoList, out TodoItem doneItem, out int doneTaskNumber)) return new DoneCommand(todoList, doneTaskNumber, TodoFilePath);
-                    Console.WriteLine("Неправильный формат, должен быть: done номер_задачи");
-                    return null;
-
                 case "status":
                     string[] statusParts = arguments.Split(' ');
                     if (statusParts.Length == 2 && ValidationNumber(statusParts[0], todoList, out TodoItem statusItem, out int statusTaskNumber))
