@@ -6,6 +6,8 @@ namespace Todolist
         public int TaskNumber { get; private set; }
         public Todolist TodoList { get; private set; }
         private readonly string TodoFilePath;
+        private TodoItem _deletedItem;
+        private int _deletedIndex;
 
         public DeleteCommand(Todolist todoList, int taskNumber, string todoFilePath = null)
         {
@@ -22,6 +24,16 @@ namespace Todolist
             Console.WriteLine($"Задача №{TaskNumber} '{taskText}' удалена");
         
             if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
+        }
+
+        public void Unexecute()
+        {
+            if (_deletedItem != null)
+            {
+                TodoList.AddAt(_deletedIndex, _deletedItem);
+                Console.WriteLine($"Отменено удаление задачи №{TaskNumber}: {_deletedItem.Text}");
+                if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
+            }
         }
     }
 }

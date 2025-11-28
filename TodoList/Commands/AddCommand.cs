@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+
 namespace Todolist
 {
     public class AddCommand : ICommand
@@ -7,6 +9,8 @@ namespace Todolist
         public string TaskText { get; private set; }
         public Todolist TodoList { get; private set; }
         private readonly string TodoFilePath;
+        private TodoItem _addedItem;
+        private int _addedIndex;
 
         public AddCommand(Todolist todoList, string taskText, bool isMultiline = false, string todoFilePath = null)
         {
@@ -49,6 +53,16 @@ namespace Todolist
             }
 
             if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
+        }
+
+        public void Unexecute()
+        {
+            if (_addedItem != null && _addedIndex >= 0 && _addedIndex < TodoList.GetCount())
+            {
+                TodoList.Delete(_addedIndex);
+                Console.WriteLine($"Отменено добавление задачи: {_addedItem.Text}");
+                if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
+            }
         }
     }
 }
