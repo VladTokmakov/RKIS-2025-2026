@@ -8,6 +8,8 @@ namespace Todolist
         public int TaskNumber { get; private set; }
         public TodoStatus Status { get; private set; }
         private readonly string TodoFilePath;
+        private TodoStatus _previousStatus;
+        private int _taskIndex;
 
         public StatusCommand(Todolist todoList, int taskNumber, TodoStatus status, string todoFilePath = null)
         {
@@ -22,6 +24,13 @@ namespace Todolist
             TodoItem item = TodoList.GetItem(TaskNumber - 1);
             TodoList.SetStatus(TaskNumber - 1, Status);
             Console.WriteLine($"Задача №{TaskNumber} статус изменен на {Status}");
+            if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
+        }
+
+        public void Unexecute()
+        {
+            TodoList.SetStatus(_taskIndex, _previousStatus);
+            Console.WriteLine($"Отменено изменение статуса задачи №{TaskNumber} на {_previousStatus}");
             if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
         }
     }

@@ -7,6 +7,8 @@ namespace Todolist
         public string NewText { get; private set; }
         public Todolist TodoList { get; private set; }
         private readonly string TodoFilePath;
+        private string _oldText;
+        private int _taskIndex;
 
         public UpdateCommand(Todolist todoList, int taskNumber, string newText, string todoFilePath = null)
         {
@@ -29,6 +31,14 @@ namespace Todolist
             item.UpdateText(NewText);
             Console.WriteLine($"Обновил задачу: \nБыло: Задача №{TaskNumber} \"{oldText}\" \nСтало: Задача №{TaskNumber} \"{NewText}\"");
         
+            if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
+        }
+
+        public void Unexecute()
+        {
+            TodoItem item = TodoList.GetItem(_taskIndex);
+            item.UpdateText(_oldText);
+            Console.WriteLine($"Отменено обновление задачи №{TaskNumber}: \"{_oldText}\"");
             if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
         }
     }
