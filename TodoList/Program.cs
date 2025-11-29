@@ -23,7 +23,7 @@ namespace Todolist
                 ICommand command = CommandParser.Parse(input, AppInfo.Todos, AppInfo.CurrentProfile);
                 if (command != null)
                 {
-                    if (!(command is UndoCommand) && !(command is RedoCommand))
+                    if (!(command is UndoCommand) && !(command is RedoCommand) && command is ICommand)
                     {
                         AppInfo.UndoStack.Push(command);
                         AppInfo.RedoStack.Clear();

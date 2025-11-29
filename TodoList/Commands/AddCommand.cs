@@ -11,6 +11,7 @@ namespace Todolist
         private readonly string TodoFilePath;
         private TodoItem _addedItem;
         private int _addedIndex;
+        private string _addedItemText;
 
         public AddCommand(Todolist todoList, string taskText, bool isMultiline = false, string todoFilePath = null)
         {
@@ -37,6 +38,7 @@ namespace Todolist
                 }
 
                 _addedItem = new TodoItem(multilineText.Trim());
+                _addedItemText = multilineText.Trim();
                 TodoList.Add(_addedItem);
                 _addedIndex = TodoList.GetCount() - 1;
                 Console.WriteLine($"Добавлена задача №{TodoList.GetCount()}: {multilineText.Trim()}");
@@ -49,6 +51,7 @@ namespace Todolist
                 }
 
                 _addedItem = new TodoItem(TaskText);
+                _addedItemText = TaskText;
                 TodoList.Add(_addedItem);
                 _addedIndex = TodoList.GetCount() - 1;
                 Console.WriteLine($"Добавлена задача №{TodoList.GetCount()}: {TaskText}");
@@ -59,11 +62,20 @@ namespace Todolist
 
         public void Unexecute()
         {
-            if (_addedItem != null && _addedIndex >= 0 && _addedIndex < TodoList.GetCount())
+            if (!string.IsNullOrEmpty(_addedItemText))
             {
-                TodoList.Delete(_addedIndex);
-                Console.WriteLine($"Отменено добавление задачи: {_addedItem.Text}");
-                if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
+                for (int i = TodoList.GetCount() - 1; i >= 0; i--)
+                {
+                    var item = TodoList.GetItem(i);
+                    if (item.Text == _addedItemText)
+                    {
+                        TodoList.Delete(i);
+                        Console.WriteLine($"Отменено добавление задачи: {_addedItemText}");
+                        if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
+                        return;
+                    }
+                }
+                Console.WriteLine("Не удалось найти задачу для отмены добавления");
             }
         }
     }
