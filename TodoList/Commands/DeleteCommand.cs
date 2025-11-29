@@ -14,13 +14,14 @@ namespace Todolist
             TodoList = todoList;
             TaskNumber = taskNumber;
             TodoFilePath = todoFilePath;
+            _deletedIndex = taskNumber - 1;
         }
 
         public void Execute()
         {
-            TodoItem item = TodoList.GetItem(TaskNumber - 1);
-            string taskText = item.Text;
-            TodoList.Delete(TaskNumber - 1);
+            _deletedItem = TodoList.GetItem(_deletedIndex);
+            string taskText = _deletedItem.Text;
+            TodoList.Delete(_deletedIndex);
             Console.WriteLine($"Задача №{TaskNumber} '{taskText}' удалена");
         
             if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);

@@ -16,12 +16,13 @@ namespace Todolist
             TaskNumber = taskNumber;
             NewText = newText;
             TodoFilePath = todoFilePath;
+            _taskIndex = taskNumber - 1;
         }
 
         public void Execute()
         {
-            TodoItem item = TodoList.GetItem(TaskNumber - 1);
-            string oldText = item.Text;
+            TodoItem item = TodoList.GetItem(_taskIndex);
+            _oldText = item.Text;
 
             if (NewText.StartsWith("\"") && NewText.EndsWith("\""))
             {
@@ -29,7 +30,7 @@ namespace Todolist
             }
 
             item.UpdateText(NewText);
-            Console.WriteLine($"Обновил задачу: \nБыло: Задача №{TaskNumber} \"{oldText}\" \nСтало: Задача №{TaskNumber} \"{NewText}\"");
+            Console.WriteLine($"Обновил задачу: \nБыло: Задача №{TaskNumber} \"{_oldText}\" \nСтало: Задача №{TaskNumber} \"{NewText}\"");
         
             if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
         }

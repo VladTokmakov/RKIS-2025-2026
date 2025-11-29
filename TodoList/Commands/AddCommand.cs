@@ -31,13 +31,14 @@ namespace Todolist
                 string line = Console.ReadLine();
                 while (line.ToLower() != "!end")
                 {
-                    Console.Write("> ");
                     multilineText += line + "\n";
+                    Console.Write("> ");
                     line = Console.ReadLine();
                 }
 
-                TodoItem newItem = new TodoItem(multilineText.Trim());
-                TodoList.Add(newItem);
+                _addedItem = new TodoItem(multilineText.Trim());
+                TodoList.Add(_addedItem);
+                _addedIndex = TodoList.GetCount() - 1;
                 Console.WriteLine($"Добавлена задача №{TodoList.GetCount()}: {multilineText.Trim()}");
             }
             else
@@ -47,8 +48,9 @@ namespace Todolist
                     TaskText = TaskText.Substring(1, TaskText.Length - 2);
                 }
 
-                TodoItem newItem = new TodoItem(TaskText);
-                TodoList.Add(newItem);
+                _addedItem = new TodoItem(TaskText);
+                TodoList.Add(_addedItem);
+                _addedIndex = TodoList.GetCount() - 1;
                 Console.WriteLine($"Добавлена задача №{TodoList.GetCount()}: {TaskText}");
             }
 

@@ -18,5 +18,9 @@ namespace Todolist
                 Console.WriteLine("Нет команд для повтора");
             }
         }
+
+        public void Unexecute()
+        {
+        }
     }
 }

@@ -7,5 +7,9 @@ namespace Todolist
         {
             Environment.Exit(0);
         }
+
+        public void Unexecute()
+        {
+        }
     }
 }

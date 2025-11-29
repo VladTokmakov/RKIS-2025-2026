@@ -17,12 +17,14 @@ namespace Todolist
             TaskNumber = taskNumber;
             Status = status;
             TodoFilePath = todoFilePath;
+            _taskIndex = taskNumber - 1;
         }
 
         public void Execute()
         {
-            TodoItem item = TodoList.GetItem(TaskNumber - 1);
-            TodoList.SetStatus(TaskNumber - 1, Status);
+            TodoItem item = TodoList.GetItem(_taskIndex);
+            _previousStatus = item.Status;
+            TodoList.SetStatus(_taskIndex, Status);
             Console.WriteLine($"Задача №{TaskNumber} статус изменен на {Status}");
             if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
         }

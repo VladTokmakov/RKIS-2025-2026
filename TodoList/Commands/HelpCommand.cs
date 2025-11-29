@@ -16,6 +16,8 @@ namespace Todolist
             status  - изменяет статус задачи
             delete  - удаляет задачу по индексу
             update  - обновляет текст задачи
+            undo    - отменяет последнюю выполненную команду
+            redo    - повторяет отмененную команду
             exit    - завершает программу
 
             Флаги для команды 'view':
@@ -27,6 +29,10 @@ namespace Todolist
             Cтатусы задач для комманды 'status':
             NotStarted, InProgress, Completed, Postponed, Failed
             """);
+        }
+
+        public void Unexecute()
+        {
         }
     }
 }
