@@ -15,7 +15,7 @@ namespace Todolist
             }
             else
             {
-                Console.WriteLine("Нет команд для отмены");
+                Console.WriteLine("Нет команд для отмены.");
             }
         }
         public void Unexecute()

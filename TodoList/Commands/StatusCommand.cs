@@ -28,7 +28,6 @@ namespace Todolist
             Console.WriteLine($"Задача №{TaskNumber} статус изменен на {Status}");
             if (!string.IsNullOrEmpty(TodoFilePath)) FileManager.SaveTodos(TodoList, TodoFilePath);
         }
-
         public void Unexecute()
         {
             TodoList.SetStatus(_taskIndex, _previousStatus);

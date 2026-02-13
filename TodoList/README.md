@@ -12,7 +12,6 @@
 - CommandParser - класс для создания команд на основе ввода пользователя
 
 Также добавлены классы в папку Commands: AddCommand, ViewCommand, ReadCommand, StatusCommand, DeleteCommand, UpdateCommand, ProfileCommand, HelpCommand, SetDataUserCommand, ExitCommand, UndoCommand, RedoCommand.
-
 Задачи хранятся в файле todo.csv в формате Index;Text;IsDone;LastUpdate
 Профиль хранится в файле profile.txt в формате Имя;Фамилия;ГодРождения
 
