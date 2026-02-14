@@ -32,9 +32,5 @@ namespace Todolist
 
             TodoList.View(showIndex, showStatus, showDate);
         }
-
-        public void Unexecute()
-        {
-        }
     }
 }

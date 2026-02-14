@@ -17,9 +17,5 @@ namespace Todolist
             TodoItem item = TodoList.GetItem(TaskNumber - 1);
             Console.WriteLine(item.GetFullInfo());
         }
-
-        public void Unexecute()
-        {
-        }
     }
 }

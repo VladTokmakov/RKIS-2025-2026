@@ -5,6 +5,8 @@ namespace Todolist
 {
     class Program
     {
+        private static Profile user;
+        private static Todolist todoList = new Todolist();
         private static string dataDirPath = Path.Combine(Directory.GetCurrentDirectory(), "data");
         private static string profileFilePath = Path.Combine(dataDirPath, "profile.txt");
         private static string todoFilePath = Path.Combine(dataDirPath, "todo.csv");
@@ -20,27 +22,20 @@ namespace Todolist
                 Console.Write("Введите команду: ");
                 string input = Console.ReadLine().Trim();
 
-                ICommand command = CommandParser.Parse(input, AppInfo.Todos, AppInfo.CurrentProfile);
+                ICommand command = CommandParser.Parse(input, todoList, user);
                 if (command != null)
                 {
-                    if (!(command is UndoCommand) && !(command is RedoCommand) && command is ICommand)
-                    {
-                        AppInfo.UndoStack.Push(command);
-                        AppInfo.RedoStack.Clear();
-                    }
                     command.Execute();
-                    
-                    if (command is SetDataUserCommand setUserCommand) 
-                        AppInfo.CurrentProfile = setUserCommand.User;
+                    if (command is SetDataUserCommand setUserCommand) user = setUserCommand.User;
                 }
             }
         }
 
         static void SetDataUserCommand()
         {
-            var setDataUserCommand = new SetDataUserCommand(profileFilePath); 
+            var setDataUserCommand = new SetDataUserCommand();
             setDataUserCommand.Execute();
-            AppInfo.CurrentProfile = setDataUserCommand.User;
+            user = setDataUserCommand.User;
         }
 
         static void InitializeFileSystem()
@@ -51,19 +46,19 @@ namespace Todolist
 
         static void LoadData()
         {
-            AppInfo.CurrentProfile = FileManager.LoadProfile(profileFilePath);
+            user = FileManager.LoadProfile(profileFilePath);
             
-            if (AppInfo.CurrentProfile != null)
+            if (user != null)
             {
-                Console.WriteLine($"Загружен профиль: {AppInfo.CurrentProfile.GetInfo()}");
+                Console.WriteLine($"Загружен профиль: {user.GetInfo()}");
             }
             else
             {
                 SetDataUserCommand();
             }
 
-            AppInfo.Todos = FileManager.LoadTodos(todoFilePath);
-            Console.WriteLine($"Загружено задач: {AppInfo.Todos.GetCount()}");
+            todoList = FileManager.LoadTodos(todoFilePath);
+            Console.WriteLine($"Загружено задач: {todoList.GetCount()}");
         }
     }
 }

@@ -79,12 +79,6 @@ namespace Todolist
                     Console.WriteLine("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст");
                     return null;
 
-                case "undo":
-                    return new UndoCommand();
-                    
-                case "redo":
-                    return new RedoCommand();
-
                 case "exit":
                     return new ExitCommand();
 

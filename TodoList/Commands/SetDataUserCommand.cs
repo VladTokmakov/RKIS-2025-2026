@@ -27,10 +27,7 @@ namespace Todolist
             Console.WriteLine();
 
             if (!string.IsNullOrEmpty(ProfileFilePath)) FileManager.SaveProfile(User, ProfileFilePath);
-        }
 
-        public void Unexecute()
-        {
         }
     }
 }

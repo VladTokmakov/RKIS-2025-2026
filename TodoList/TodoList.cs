@@ -99,14 +99,6 @@ namespace Todolist
             }
         }
 
-        public void AddAt(int index, TodoItem item)
-        {
-            if (index < 0 || index > items.Count)
-                throw new ArgumentOutOfRangeException();
-            
-            items.Insert(index, item);
-        }
-
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
