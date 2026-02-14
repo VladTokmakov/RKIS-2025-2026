@@ -65,7 +65,6 @@ namespace Todolist
                 {
                     TodoList.GetItem(index).UpdateText(_oldText);
                     Console.WriteLine($"Текст задачи №{TaskNumber} возвращен к предыдущему значению.");
-    
                     if (!string.IsNullOrEmpty(TodoFilePath)) 
                         FileManager.SaveTodos(TodoList, TodoFilePath);
                 }
