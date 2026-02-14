@@ -11,7 +11,7 @@
 - ICommand - интерфейс для реализации паттерна "Команда"
 - CommandParser - класс для создания команд на основе ввода пользователя
 
-Также добавлены классы в папку Commands: AddCommand, ViewCommand, ReadCommand, StatusCommand, DeleteCommand, UpdateCommand, ProfileCommand, HelpCommand, SetDataUserCommand, ExitCommand, UndoCommand, RedoCommand.
+Также добавлены классы в папку Commands: AddCommand, ViewCommand, ReadCommand, StatusCommand, DeleteCommand, UpdateCommand, ProfileCommand, HelpCommand, SetDataUserCommand, ExitCommand, UndoCommand, RedoCommand, SearchFlags, SearchCommand.
 
 Задачи хранятся в файле todo.csv в формате Index;Text;IsDone;LastUpdate
 Профиль хранится в файле profile.txt в формате Имя;Фамилия;ГодРождения
@@ -20,6 +20,7 @@
 - help - список всех команд с кратким описанием
 - profile - отображение данных пользователя
 - adduser - Создание и изменение пользователя
+- profile --out - выход из текущего профиля
 - add - добавление новых задач (формата add "текст задачи" или add текст задачи)
 - read - полный просмотр задачи (формата read номер_задачи)
 - view - просмотр списка всех задач
@@ -29,6 +30,7 @@
 - undo - отменяет последнюю выполненную команду
 - redo - повторяет отмененную команду
 - exit - завершение работы программы
+- search - поиск задач с фильтрацией
 
 Флаги для команды view:
 - -i, --index - показывать индекс задачи
@@ -38,3 +40,20 @@
 
 Cтатусы задач для комманды 'status':
 NotStarted, InProgress, Completed, Postponed, Failed
+
+            Флаги для команды Search:
+        Фильтрация по тексту:
+- --contains "текст" — задачи, содержащие указанный текст
+- --starts-with "текст" — задачи, начинающиеся с указанного текста
+- --ends-with "текст" — задачи, заканчивающиеся указанным текстом
+        Фильтрация по дате:
+- --from yyyy-MM-dd — задачи с датой изменения не раньше указанной
+- --to yyyy-MM-dd — задачи с датой изменения не позже указанной
+        Фильтрация по статусу:
+- --status <статус> — задачи с указанным статусом (NotStarted, InProgress, Completed, Postponed, Failed)
+        Сортировка результатов:
+- --sort text — сортировка по тексту задачи
+- --sort date — сортировка по дате последнего изменения
+- --desc — сортировка по убыванию (по умолчанию — по возрастанию)
+        Ограничение вывода:
+- --top N — показать только первые N задач после фильтрации и сортировки
