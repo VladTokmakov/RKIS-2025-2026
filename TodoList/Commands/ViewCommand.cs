@@ -1,4 +1,5 @@
 using System;
+
 namespace Todolist
 {
     public class ViewCommand : ICommand
@@ -20,6 +21,12 @@ namespace Todolist
 
         public void Execute()
         {
+            if (TodoList == null)
+            {
+                Console.WriteLine("Ошибка: список задач не инициализирован");
+                return;
+            }
+
             if (TodoList.GetCount() == 0)
             {
                 Console.WriteLine("Задачи отсутствуют");
@@ -30,7 +37,19 @@ namespace Todolist
             bool showStatus = ShowStatus || ShowAll;
             bool showDate = ShowDate || ShowAll;
 
-            TodoList.View(showIndex, showStatus, showDate);
+            try
+            {
+                TodoList.View(showIndex, showStatus, showDate);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при отображении задач: {ex.Message}");
+            }
+        }
+
+        public void Unexecute()
+        {
+            
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+
 namespace Todolist
 {
     public class ReadCommand : ICommand
@@ -14,8 +15,33 @@ namespace Todolist
 
         public void Execute()
         {
-            TodoItem item = TodoList.GetItem(TaskNumber - 1);
-            Console.WriteLine(item.GetFullInfo());
+            if (TodoList == null)
+            {
+                Console.WriteLine("Ошибка: список задач не инициализирован");
+                return;
+            }
+
+            int index = TaskNumber - 1;
+            if (index < 0 || index >= TodoList.GetCount())
+            {
+                Console.WriteLine($"Задача с номером {TaskNumber} не найдена");
+                return;
+            }
+
+            try
+            {
+                TodoItem item = TodoList.GetItem(index);
+                Console.WriteLine(item.GetFullInfo());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при чтении задачи: {ex.Message}");
+            }
+        }
+
+        public void Unexecute()
+        {
+            
         }
     }
 }

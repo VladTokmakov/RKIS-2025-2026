@@ -47,23 +47,17 @@ namespace Todolist
             header += "Задача                            ";
             if (showDate) header += "Дата изменения        ";
             if (showStatus) header += "Статус";
-
             Console.WriteLine(header);
             Console.WriteLine(new string('-', header.Length));
 
             for (int i = 0; i < items.Count; i++)
             {
                 string row = "";
-
                 if (showIndex) row += $"{i + 1}       ".Substring(0, 8);
-
                 string taskText = items[i].GetShortInfo();
                 row += taskText + new string(' ', 34 - taskText.Length);
-
                 if (showDate) row += $"{items[i].LastUpdate} ";
-
                 if (showStatus) row += $"{items[i].Status}";
-
                 Console.WriteLine(row);
             }
         }
@@ -72,7 +66,6 @@ namespace Todolist
         {
             if (index < 0 || index >= items.Count)
                 throw new ArgumentOutOfRangeException();
-
             return items[index];
         }
 

@@ -1,4 +1,5 @@
 using System;
+
 namespace Todolist
 {
     public class ProfileCommand : ICommand
@@ -20,6 +21,11 @@ namespace Todolist
             {
                 Console.WriteLine("Данные пользователя не найдены");
             }
+        }
+
+        public void Unexecute()
+        {
+            
         }
     }
 }

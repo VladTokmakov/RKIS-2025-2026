@@ -12,7 +12,6 @@ namespace Todolist
         public static void SaveProfile(Profile profile, string filePath)
         {
             if (profile == null) return;
-            
             string profileData = $"{profile.FirstName};{profile.LastName};{profile.BirthYear}";
             File.WriteAllText(filePath, profileData);
         }
@@ -20,7 +19,6 @@ namespace Todolist
         public static Profile LoadProfile(string filePath)
         {
             if (!File.Exists(filePath)) return null;
-
             string content = File.ReadAllText(filePath);
             string[] parts = content.Split(';');
             
@@ -31,7 +29,6 @@ namespace Todolist
                 int birthYear = int.Parse(parts[2]);
                 return new Profile(firstName, lastName, birthYear);
             }
-            
             return null;
         }
 
@@ -65,10 +62,8 @@ namespace Todolist
                 {
                     TodoStatus status = Enum.Parse<TodoStatus>(parts[1]);
                     DateTime lastUpdate = DateTime.Parse(parts[2]);
-
                     string text = string.Join(";", parts, 3, parts.Length - 3);
                     text = UnescapeCsv(text);
-
                     TodoItem item = new TodoItem(text, status, lastUpdate);
                     todos.Add(item);
                 }

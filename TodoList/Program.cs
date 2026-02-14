@@ -19,23 +19,48 @@ namespace Todolist
 
             while (true)
             {
+                if (AppInfo.ShouldLogout)
+                {
+                    AppInfo.ShouldLogout = false;
+                    LoadData();
+                }
+
                 Console.Write("Введите команду: ");
                 string input = Console.ReadLine().Trim();
 
-                ICommand command = CommandParser.Parse(input, todoList, user);
-                if (command != null)
+                if (string.IsNullOrEmpty(input))
                 {
-                    command.Execute();
-                    if (command is SetDataUserCommand setUserCommand) user = setUserCommand.User;
+                    Console.WriteLine("Пустая команда.");
+                    continue;
+                }
+
+                try
+                {
+                    ICommand command = CommandParser.Parse(input, todoList, user);
+                    if (command != null)
+                    {
+                        command.Execute();
+                        
+                        if (command is SetDataUserCommand setUserCommand && setUserCommand.User != null)
+                        {
+                            user = setUserCommand.User;
+                            AppInfo.CurrentProfile = user;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка: {ex.Message}");
                 }
             }
         }
 
         static void SetDataUserCommand()
         {
-            var setDataUserCommand = new SetDataUserCommand();
+            var setDataUserCommand = new SetDataUserCommand(profileFilePath);
             setDataUserCommand.Execute();
             user = setDataUserCommand.User;
+            AppInfo.CurrentProfile = user;
         }
 
         static void InitializeFileSystem()
@@ -47,7 +72,8 @@ namespace Todolist
         static void LoadData()
         {
             user = FileManager.LoadProfile(profileFilePath);
-            
+            AppInfo.CurrentProfile = user;
+
             if (user != null)
             {
                 Console.WriteLine($"Загружен профиль: {user.GetInfo()}");
@@ -58,6 +84,7 @@ namespace Todolist
             }
 
             todoList = FileManager.LoadTodos(todoFilePath);
+            AppInfo.Todos = todoList;
             Console.WriteLine($"Загружено задач: {todoList.GetCount()}");
         }
     }

@@ -1,9 +1,9 @@
 using System;
+
 namespace Todolist
 {
     public class HelpCommand : ICommand
     {
-      
         public void Execute()
         {
             Console.WriteLine("""
@@ -16,6 +16,8 @@ namespace Todolist
             status  - изменяет статус задачи
             delete  - удаляет задачу по индексу
             update  - обновляет текст задачи
+            undo - отменяет последнюю выполненную команду
+            redo - повторяет отмененную команду
             exit    - завершает программу
 
             Флаги для команды 'view':
@@ -28,5 +30,7 @@ namespace Todolist
             NotStarted, InProgress, Completed, Postponed, Failed
             """);
         }
+
+        public void Unexecute() { }
     }
 }

@@ -11,7 +11,7 @@
 - ICommand - интерфейс для реализации паттерна "Команда"
 - CommandParser - класс для создания команд на основе ввода пользователя
 
-Также добавлены классы в папку Commands: AddCommand, ViewCommand, ReadCommand, StatusCommand, DeleteCommand, UpdateCommand, ProfileCommand, HelpCommand, SetDataUserCommand, ExitCommand.
+Также добавлены классы в папку Commands: AddCommand, ViewCommand, ReadCommand, StatusCommand, DeleteCommand, UpdateCommand, ProfileCommand, HelpCommand, SetDataUserCommand, ExitCommand, UndoCommand, RedoCommand.
 
 Задачи хранятся в файле todo.csv в формате Index;Text;IsDone;LastUpdate
 Профиль хранится в файле profile.txt в формате Имя;Фамилия;ГодРождения
@@ -26,6 +26,8 @@
 - status - изменение статуса задачи (формата status номер_задачи статус)
 - delete - удаляет задачу по индексу (формата delete номер_задачи)
 - update - обновляет текст задачи (формата update номер_задачи "новый_текст" или update номер_задачи новый_текст)
+- undo - отменяет последнюю выполненную команду
+- redo - повторяет отмененную команду
 - exit - завершение работы программы
 
 Флаги для команды view:
