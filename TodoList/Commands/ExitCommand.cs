@@ -9,10 +9,5 @@ namespace Todolist
             Console.WriteLine("Выход из программы...");
             Environment.Exit(0);
         }
-
-        public void Unexecute()
-        {
-            
-        }
     }
 }

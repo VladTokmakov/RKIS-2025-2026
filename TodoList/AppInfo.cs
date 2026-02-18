@@ -6,8 +6,8 @@ namespace Todolist
     {
         public static Todolist Todos { get; set; } = new Todolist();
         public static Profile CurrentProfile { get; set; }
-        public static Stack<ICommand> UndoStack { get; set; } = new Stack<ICommand>();
-        public static Stack<ICommand> RedoStack { get; set; } = new Stack<ICommand>();
+        public static Stack<IUndo> UndoStack { get; set; } = new Stack<IUndo>();
+        public static Stack<IUndo> RedoStack { get; set; } = new Stack<IUndo>();
         public static bool ShouldLogout { get; set; }
     }
 }

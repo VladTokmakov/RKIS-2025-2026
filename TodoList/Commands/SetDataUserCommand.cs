@@ -2,7 +2,7 @@ using System;
 
 namespace Todolist
 {
-    public class SetDataUserCommand : ICommand
+    public class SetDataUserCommand : IUndo
     {
         public Profile User { get; private set; }
         private readonly string ProfileFilePath;

@@ -2,7 +2,7 @@ using System;
 
 namespace Todolist
 {
-    public class DeleteCommand : ICommand
+    public class DeleteCommand : IUndo
     {
         public int TaskNumber { get; private set; }
         public Todolist TodoList { get; private set; }

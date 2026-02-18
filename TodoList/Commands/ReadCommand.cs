@@ -38,10 +38,5 @@ namespace Todolist
                 Console.WriteLine($"Ошибка при чтении задачи: {ex.Message}");
             }
         }
-
-        public void Unexecute()
-        {
-            
-        }
     }
 }

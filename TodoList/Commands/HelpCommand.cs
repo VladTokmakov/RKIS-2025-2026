@@ -49,7 +49,5 @@ namespace Todolist
             - --top N — показать только первые N задач после фильтрации и сортировки
             """);
         }
-
-        public void Unexecute() { }
     }
 }

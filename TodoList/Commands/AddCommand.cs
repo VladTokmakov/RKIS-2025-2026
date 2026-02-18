@@ -2,7 +2,7 @@ using System;
 
 namespace Todolist
 {
-    public class AddCommand : ICommand
+    public class AddCommand : IUndo
     {
         public bool IsMultiline { get; private set; }
         public string TaskText { get; private set; }

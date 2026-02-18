@@ -92,13 +92,13 @@ namespace Todolist
             Console.WriteLine($"Найдено задач: {searchResults.Count}");
             Console.WriteLine();
 
-            for (int i = 0; i < searchResults.Count; i++)
+            var resultList = new Todolist();
+            foreach (var item in searchResults)
             {
-                var item = searchResults[i];
-                Console.WriteLine($"[{i + 1}] {item.GetShortInfo()}");
+                resultList.Add(item);
             }
-        }
 
-        public void Unexecute() { }
+            resultList.View(true, true, true);
+        }
     }
 }

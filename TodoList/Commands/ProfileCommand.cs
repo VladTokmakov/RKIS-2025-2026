@@ -22,10 +22,5 @@ namespace Todolist
                 Console.WriteLine("Данные пользователя не найдены");
             }
         }
-
-        public void Unexecute()
-        {
-            
-        }
     }
 }
