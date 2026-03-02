@@ -28,7 +28,6 @@ namespace Todolist
             {
                 case "help":
                     return new HelpCommand();
-
                 case "profile":
                     if (arguments == "--out" || arguments == "-o")
                     {
@@ -44,7 +43,6 @@ namespace Todolist
                         throw new ProfileNotFoundException("Нет активного профиля.");
                     
                     return new ProfileCommand(profile);
-
                 case "add":
                     if (arguments == "--multiline" || arguments == "-m")
                     {
@@ -62,10 +60,8 @@ namespace Todolist
                         
                         return new AddCommand(todoList, arguments, false, TodoFilePath);
                     }
-
                 case "add_user":
                     return new SetDataUserCommand(ProfileFilePath);
-
                 case "read":
                     if (profile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для просмотра задач.");
@@ -74,7 +70,6 @@ namespace Todolist
                         return new ReadCommand(todoList, readTaskNumber);
                     
                     throw new InvalidArgumentException("Неправильный формат, должен быть: read номер_задачи");
-
                 case "view":
                     if (profile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для просмотра задач.");
@@ -85,7 +80,6 @@ namespace Todolist
                     bool showAll = arguments.Contains("-a") || arguments.Contains("--all");
                     
                     return new ViewCommand(todoList, showIndex, showStatus, showDate, showAll);
-
                 case "status":
                     if (profile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для изменения статуса задач.");
@@ -106,7 +100,6 @@ namespace Todolist
                     {
                         throw new InvalidArgumentException("Неправильный формат, должен быть: status номер_задачи статус");
                     }
-
                 case "delete":
                     if (profile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для удаления задач.");
@@ -115,7 +108,6 @@ namespace Todolist
                         return new DeleteCommand(todoList, deleteTaskNumber, TodoFilePath);
                     
                     throw new InvalidArgumentException("Неправильный формат, должен быть: delete номер_задачи");
-
                 case "update":
                     if (profile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для обновления задач.");
@@ -130,19 +122,16 @@ namespace Todolist
                     }
                     
                     throw new InvalidArgumentException("Неправильный формат, должен быть: update номер_задачи \"новый_текст\" или update номер_задачи новый_текст");
-
                 case "undo":
                     return new UndoCommand();
-
                 case "redo":
                     return new RedoCommand();
-
                 case "search":
                     return ParseSearch(arguments);
-
+                case "load":
+                    return ParseLoad(arguments);
                 case "exit":
                     return new ExitCommand();
-
                 default:
                     throw new InvalidCommandException($"Неизвестная команда: {command}. Введите 'help' для просмотра доступных команд");
             }
@@ -180,19 +169,16 @@ namespace Todolist
                             throw new InvalidArgumentException("Флаг --contains требует значение.");
                         flags.ContainsText = parts[++i].Trim('"');
                         break;
-
                     case "--starts-with":
                         if (i + 1 >= parts.Length || parts[i + 1].StartsWith("--"))
                             throw new InvalidArgumentException("Флаг --starts-with требует значение.");
                         flags.StartsWithText = parts[++i].Trim('"');
                         break;
-
                     case "--ends-with":
                         if (i + 1 >= parts.Length || parts[i + 1].StartsWith("--"))
                             throw new InvalidArgumentException("Флаг --ends-with требует значение.");
                         flags.EndsWithText = parts[++i].Trim('"');
                         break;
-
                     case "--from":
                         if (i + 1 >= parts.Length || parts[i + 1].StartsWith("--"))
                             throw new InvalidArgumentException("Флаг --from требует значение.");
@@ -203,7 +189,6 @@ namespace Todolist
                         
                         flags.FromDate = from;
                         break;
-
                     case "--to":
                         if (i + 1 >= parts.Length || parts[i + 1].StartsWith("--"))
                             throw new InvalidArgumentException("Флаг --to требует значение.");
@@ -214,7 +199,6 @@ namespace Todolist
                         
                         flags.ToDate = to;
                         break;
-
                     case "--status":
                         if (i + 1 >= parts.Length || parts[i + 1].StartsWith("--"))
                             throw new InvalidArgumentException("Флаг --status требует значение.");
@@ -225,7 +209,6 @@ namespace Todolist
                         
                         flags.Status = status;
                         break;
-
                     case "--sort":
                         if (i + 1 >= parts.Length || parts[i + 1].StartsWith("--"))
                             throw new InvalidArgumentException("Флаг --sort требует значение (text или date).");
@@ -234,11 +217,9 @@ namespace Todolist
                         if (flags.SortBy != "text" && flags.SortBy != "date")
                             throw new InvalidArgumentException("Флаг --sort принимает только значения 'text' или 'date'.");
                         break;
-
                     case "--desc":
                         flags.Descending = true;
                         break;
-
                     case "--top":
                         if (i + 1 >= parts.Length || parts[i + 1].StartsWith("--"))
                             throw new InvalidArgumentException("Флаг --top требует положительное целое число.");
@@ -252,6 +233,24 @@ namespace Todolist
             }
 
             return new SearchCommand(flags);
+        }
+
+        private static ICommand ParseLoad(string args)
+        {
+            if (string.IsNullOrWhiteSpace(args))
+                throw new InvalidArgumentException("Недостаточно параметров для команды load. Использование: load <количество> <размер>");
+
+            var parts = args.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 2)
+                throw new InvalidArgumentException("Неверное количество параметров. Использование: load <количество> <размер>");
+
+            if (!int.TryParse(parts[0], out int count) || count <= 0)
+                throw new InvalidArgumentException("Количество загрузок должно быть положительным целым числом.");
+
+            if (!int.TryParse(parts[1], out int size) || size <= 0)
+                throw new InvalidArgumentException("Размер загрузки должен быть положительным целым числом.");
+
+            return new LoadCommand(count, size);
         }
 
         private static bool ValidationNumber(string taskText, Todolist todoList, out TodoItem item, out int taskNumber)
