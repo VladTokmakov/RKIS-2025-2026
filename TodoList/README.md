@@ -1,4 +1,4 @@
-Авторы: Токмаков и Неофидис
+Авторы: Токмаков и Сайтамирова
 Группа 3834
 
 Создано консольное приложение TodoList для управления задачами с использованием принципов объектно-ориентированного программирования и автоматическим сохранением данных в структурированном CSV формате. Приложение написано на C#.
@@ -19,7 +19,7 @@
 - ProfileNotFoundException - профиль не найден
 - BusinessLogicException - ошибки бизнес-логики
 
-Также добавлены классы в папку Commands: AddCommand, ViewCommand, ReadCommand, StatusCommand, DeleteCommand, UpdateCommand, ProfileCommand, HelpCommand, SetDataUserCommand, ExitCommand, UndoCommand, RedoCommand, SearchFlags, SearchCommand.
+Также добавлены классы в папку Commands: AddCommand, ViewCommand, ReadCommand, StatusCommand, DeleteCommand, UpdateCommand, ProfileCommand, HelpCommand, SetDataUserCommand, ExitCommand, UndoCommand, RedoCommand, SearchFlags, SearchCommand, LoadCommand.
 
 Задачи хранятся в файле todo.csv в формате Index;Text;IsDone;LastUpdate
 Профиль хранится в файле profile.txt в формате Имя;Фамилия;ГодРождения
@@ -39,6 +39,7 @@
 - redo - повторяет отмененную команду
 - exit - завершение работы программы
 - search - поиск задач с фильтрацией
+- load - имитирует параллельные загрузки с прогресс-барами
 
 Флаги для команды view:
 - -i, --index - показывать индекс задачи
@@ -46,7 +47,7 @@
 - -d, --update-date - показывать дату изменения
 - -a, --all - показывать все данные
 
-Cтатусы задач для комманды 'status':
+Cтатусы задач для команды 'status':
 NotStarted, InProgress, Completed, Postponed, Failed
 
             Флаги для команды Search:

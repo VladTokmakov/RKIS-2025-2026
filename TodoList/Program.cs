@@ -16,7 +16,7 @@ namespace Todolist
         {
             try
             {
-                Console.WriteLine("Работу выполнили Токмаков и Неофидис");
+                Console.WriteLine("Работу выполнили Токмаков и Сайтамирова");
                 
                 InitializeFileSystem();
                 LoadData();

@@ -28,7 +28,6 @@ namespace Todolist
 
         public void Unexecute()
         {
-            // Nothing to undo
         }
 
         private async Task RunAsync()
@@ -55,7 +54,6 @@ namespace Todolist
                 }
             }
 
-            // Reserve lines for progress bars
             for (int i = 0; i < _downloadsCount; i++)
             {
                 Console.WriteLine();
