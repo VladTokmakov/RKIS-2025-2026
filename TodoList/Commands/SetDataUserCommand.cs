@@ -6,12 +6,15 @@ namespace Todolist
     public class SetDataUserCommand : IUndo
     {
         public Profile User { get; private set; }
+
         private readonly string ProfileFilePath;
+        private readonly IDataStorage _storage;
         private Profile _oldProfile;
 
-        public SetDataUserCommand(string profileFilePath = null)
+        public SetDataUserCommand(string profileFilePath = null, IDataStorage storage = null)
         {
             ProfileFilePath = profileFilePath;
+            _storage = storage;
         }
 
         public void Execute()
@@ -32,22 +35,22 @@ namespace Todolist
 
                 Console.Write("Введите ваш год рождения: ");
                 string yearInput = Console.ReadLine();
-                
+
                 if (!int.TryParse(yearInput, out int yearBirth))
                     throw new InvalidArgumentException("Неверный формат года рождения");
-                    
+
                 if (yearBirth < 1900 || yearBirth > DateTime.Now.Year)
                     throw new InvalidArgumentException($"Год рождения должен быть между 1900 и {DateTime.Now.Year}");
 
                 User = new Profile(firstName, lastName, yearBirth);
                 AppInfo.CurrentProfile = User;
-                
+
                 Console.WriteLine($"Добавлен пользователь: {User.GetInfo()}");
                 Console.WriteLine();
 
-                if (!string.IsNullOrEmpty(ProfileFilePath))
+                if (!string.IsNullOrEmpty(ProfileFilePath) && _storage != null)
                 {
-                    FileManager.SaveProfile(User, ProfileFilePath);
+                    _storage.SaveProfile(User, ProfileFilePath);
                 }
 
                 AppInfo.UndoStack.Push(this);
@@ -65,9 +68,9 @@ namespace Todolist
             {
                 AppInfo.CurrentProfile = _oldProfile;
 
-                if (_oldProfile != null && !string.IsNullOrEmpty(ProfileFilePath))
+                if (_oldProfile != null && !string.IsNullOrEmpty(ProfileFilePath) && _storage != null)
                 {
-                    FileManager.SaveProfile(_oldProfile, ProfileFilePath);
+                    _storage.SaveProfile(_oldProfile, ProfileFilePath);
                 }
 
                 Console.WriteLine("Создание профиля отменено");

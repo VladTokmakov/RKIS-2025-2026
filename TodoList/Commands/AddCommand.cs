@@ -8,15 +8,19 @@ namespace Todolist
         public bool IsMultiline { get; private set; }
         public string TaskText { get; private set; }
         public Todolist TodoList { get; private set; }
+
         private readonly string TodoFilePath;
+        private readonly IDataStorage _storage;
         private TodoItem _addedItem;
 
-        public AddCommand(Todolist todoList, string taskText, bool isMultiline = false, string todoFilePath = null)
+        public AddCommand(Todolist todoList, string taskText, bool isMultiline = false, 
+                          string todoFilePath = null, IDataStorage storage = null)
         {
             TodoList = todoList;
             TaskText = taskText;
             IsMultiline = isMultiline;
             TodoFilePath = todoFilePath;
+            _storage = storage;
         }
 
         public void Execute()
@@ -45,16 +49,17 @@ namespace Todolist
 
                 _addedItem = new TodoItem(finalText);
                 TodoList.Add(_addedItem);
+
                 AppInfo.UndoStack.Push(this);
                 AppInfo.RedoStack.Clear();
-                
+
                 Console.WriteLine($"Добавлена задача №{TodoList.GetCount()}: {finalText}");
 
-                if (!string.IsNullOrEmpty(TodoFilePath))
+                if (!string.IsNullOrEmpty(TodoFilePath) && _storage != null)
                 {
                     try
                     {
-                        FileManager.SaveTodos(TodoList, TodoFilePath);
+                        _storage.SaveTodos(TodoList, TodoFilePath);
                     }
                     catch (Exception ex)
                     {
@@ -80,9 +85,9 @@ namespace Todolist
                         TodoList.Delete(lastIndex - 1);
                         Console.WriteLine("Добавление задачи отменено.");
 
-                        if (!string.IsNullOrEmpty(TodoFilePath))
+                        if (!string.IsNullOrEmpty(TodoFilePath) && _storage != null)
                         {
-                            FileManager.SaveTodos(TodoList, TodoFilePath);
+                            _storage.SaveTodos(TodoList, TodoFilePath);
                         }
                     }
                 }
@@ -97,21 +102,21 @@ namespace Todolist
         {
             Console.WriteLine("Многострочный режим. Введите задачи (для завершения введите '!end'):");
             string multilineText = "";
-            
+
             while (true)
             {
                 Console.Write("> ");
                 string line = Console.ReadLine();
-                
+
                 if (line == null)
                     continue;
-                    
+
                 if (line.ToLower() == "!end")
                     break;
-                    
+
                 multilineText += line + "\n";
             }
-            
+
             return multilineText.Trim();
         }
     }

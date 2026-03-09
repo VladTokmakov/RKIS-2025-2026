@@ -1,17 +1,227 @@
 using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Collections.Generic;
 using Todolist.Exceptions;
 
 namespace Todolist
 {
-    public static class FileManager
+    public class FileManager : IDataStorage
     {
+        private static readonly byte[] Key = Encoding.UTF8.GetBytes("0123456789abcdef0123456789abcdef");
+        private static readonly byte[] IV = Encoding.UTF8.GetBytes("abcdefghijklmnop");
+
+        public void SaveProfile(Profile profile, string filePath)
+        {
+            if (profile == null)
+                throw new InvalidArgumentException("Профиль не может быть null");
+
+            try
+            {
+                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                using (var bufferedStream = new BufferedStream(fileStream))
+                using (var aes = Aes.Create())
+                {
+                    aes.Key = Key;
+                    aes.IV = IV;
+
+                    using (var cryptoStream = new CryptoStream(bufferedStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                    using (var writer = new StreamWriter(cryptoStream, Encoding.UTF8))
+                    {
+                        string profileData = $"{EscapeCsvField(profile.FirstName)};{EscapeCsvField(profile.LastName)};{profile.BirthYear}";
+                        writer.Write(profileData);
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                throw new BusinessLogicException($"Нет прав на запись в файл: {filePath}");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                throw new BusinessLogicException($"Директория для файла профиля не найдена: {filePath}");
+            }
+            catch (CryptographicException ex)
+            {
+                throw new BusinessLogicException($"Ошибка шифрования при сохранении профиля: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                throw new BusinessLogicException($"Ошибка ввода-вывода при сохранении профиля: {ex.Message}");
+            }
+        }
+
+        public Profile LoadProfile(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return null;
+
+            try
+            {
+                using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                using (var bufferedStream = new BufferedStream(fileStream))
+                using (var aes = Aes.Create())
+                {
+                    aes.Key = Key;
+                    aes.IV = IV;
+
+                    using (var cryptoStream = new CryptoStream(bufferedStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
+                    using (var reader = new StreamReader(cryptoStream, Encoding.UTF8))
+                    {
+                        string content = reader.ReadToEnd();
+                        if (string.IsNullOrEmpty(content))
+                            return null;
+
+                        string[] parts = ParseCsvLine(content, ';');
+                        if (parts.Length == 3)
+                        {
+                            string firstName = UnescapeCsvField(parts[0]);
+                            string lastName = UnescapeCsvField(parts[1]);
+
+                            if (!int.TryParse(parts[2], out int birthYear))
+                                throw new BusinessLogicException("Неверный формат года рождения в файле профиля");
+
+                            return new Profile(firstName, lastName, birthYear);
+                        }
+
+                        throw new BusinessLogicException("Неверный формат файла профиля");
+                    }
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                return null;
+            }
+            catch (CryptographicException)
+            {
+                throw new BusinessLogicException("Файл профиля повреждён или используется неверный ключ шифрования.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                throw new BusinessLogicException($"Нет прав на чтение файла: {filePath}");
+            }
+            catch (IOException ex)
+            {
+                throw new BusinessLogicException($"Ошибка ввода-вывода при загрузке профиля: {ex.Message}");
+            }
+        }
+
+        public void SaveTodos(Todolist todos, string filePath)
+        {
+            if (todos == null)
+                throw new InvalidArgumentException("Список задач не может быть null");
+
+            try
+            {
+                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                using (var bufferedStream = new BufferedStream(fileStream))
+                using (var aes = Aes.Create())
+                {
+                    aes.Key = Key;
+                    aes.IV = IV;
+
+                    using (var cryptoStream = new CryptoStream(bufferedStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                    using (var writer = new StreamWriter(cryptoStream, Encoding.UTF8))
+                    {
+                        int index = 1;
+                        foreach (var item in todos)
+                        {
+                            string escapedText = EscapeCsvField(item.Text);
+                            string line = $"{index};{item.Status};{item.LastUpdate:yyyy-MM-ddTHH:mm:ss};{escapedText}";
+                            writer.WriteLine(line);
+                            index++;
+                        }
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                throw new BusinessLogicException($"Нет прав на запись в файл: {filePath}");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                throw new BusinessLogicException($"Директория для файла задач не найдена: {filePath}");
+            }
+            catch (CryptographicException ex)
+            {
+                throw new BusinessLogicException($"Ошибка шифрования при сохранении задач: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                throw new BusinessLogicException($"Ошибка ввода-вывода при сохранении задач: {ex.Message}");
+            }
+        }
+
+        public Todolist LoadTodos(string filePath)
+        {
+            Todolist todos = new Todolist();
+
+            if (!File.Exists(filePath))
+                return todos;
+
+            try
+            {
+                using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                using (var bufferedStream = new BufferedStream(fileStream))
+                using (var aes = Aes.Create())
+                {
+                    aes.Key = Key;
+                    aes.IV = IV;
+
+                    using (var cryptoStream = new CryptoStream(bufferedStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
+                    using (var reader = new StreamReader(cryptoStream, Encoding.UTF8))
+                    {
+                        string? line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            if (string.IsNullOrWhiteSpace(line))
+                                continue;
+
+                            string[] parts = ParseCsvLine(line, ';');
+                            if (parts.Length >= 4)
+                            {
+                                if (!Enum.TryParse<TodoStatus>(parts[1], out TodoStatus status))
+                                    throw new BusinessLogicException($"Неверный статус в файле: {parts[1]}");
+
+                                if (!DateTime.TryParse(parts[2], out DateTime lastUpdate))
+                                    throw new BusinessLogicException($"Неверный формат даты в файле: {parts[2]}");
+
+                                string text = string.Join(";", parts, 3, parts.Length - 3);
+                                text = UnescapeCsvField(text);
+
+                                TodoItem item = new TodoItem(text, status, lastUpdate);
+                                todos.Add(item);
+                            }
+                        }
+                    }
+                }
+
+                return todos;
+            }
+            catch (FileNotFoundException)
+            {
+                return todos;
+            }
+            catch (CryptographicException)
+            {
+                throw new BusinessLogicException("Файл задач повреждён или используется неверный ключ шифрования.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                throw new BusinessLogicException($"Нет прав на чтение файла: {filePath}");
+            }
+            catch (IOException ex)
+            {
+                throw new BusinessLogicException($"Ошибка ввода-вывода при загрузке задач: {ex.Message}");
+            }
+        }
+
         public static void EnsureDataDirectory(string dirPath)
         {
             try
             {
-                if (!Directory.Exists(dirPath)) 
+                if (!Directory.Exists(dirPath))
                     Directory.CreateDirectory(dirPath);
             }
             catch (UnauthorizedAccessException)
@@ -28,159 +238,63 @@ namespace Todolist
             }
         }
 
-        public static void SaveProfile(Profile profile, string filePath)
+        private static string EscapeCsvField(string field)
         {
-            if (profile == null) 
-                throw new InvalidArgumentException("Профиль не может быть null");
-                
-            try
+            if (field.Contains(";") || field.Contains("\"") || field.Contains("\n"))
             {
-                string profileData = $"{profile.FirstName};{profile.LastName};{profile.BirthYear}";
-                File.WriteAllText(filePath, profileData);
+                string temp = field.Replace("\n", "\\n");
+                temp = temp.Replace("\"", "\"\"");
+                return "\"" + temp + "\"";
             }
-            catch (UnauthorizedAccessException)
-            {
-                throw new BusinessLogicException($"Нет прав на запись в файл: {filePath}");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                throw new BusinessLogicException($"Директория для файла профиля не найдена: {filePath}");
-            }
-            catch (IOException ex)
-            {
-                throw new BusinessLogicException($"Ошибка при сохранении профиля: {ex.Message}");
-            }
+            return field;
         }
 
-        public static Profile LoadProfile(string filePath)
+        private static string UnescapeCsvField(string field)
         {
-            if (!File.Exists(filePath)) 
-                return null;
-
-            try
+            if (field.StartsWith("\"") && field.EndsWith("\""))
             {
-                string content = File.ReadAllText(filePath);
-                string[] parts = content.Split(';');
-
-                if (parts.Length == 3)
-                {
-                    string firstName = parts[0];
-                    string lastName = parts[1];
-                    
-                    if (!int.TryParse(parts[2], out int birthYear))
-                        throw new BusinessLogicException("Неверный формат года рождения в файле профиля");
-                    
-                    return new Profile(firstName, lastName, birthYear);
-                }
-                
-                throw new BusinessLogicException("Неверный формат файла профиля");
+                field = field.Substring(1, field.Length - 2);
             }
-            catch (UnauthorizedAccessException)
-            {
-                throw new BusinessLogicException($"Нет прав на чтение файла: {filePath}");
-            }
-            catch (FileNotFoundException)
-            {
-                return null;
-            }
-            catch (IOException ex)
-            {
-                throw new BusinessLogicException($"Ошибка при загрузке профиля: {ex.Message}");
-            }
+            field = field.Replace("\\n", "\n");
+            field = field.Replace("\"\"", "\"");
+            return field;
         }
 
-        public static void SaveTodos(Todolist todos, string filePath)
+        private static string[] ParseCsvLine(string line, char delimiter)
         {
-            if (todos == null) 
-                throw new InvalidArgumentException("Список задач не может быть null");
+            var result = new List<string>();
+            var current = new StringBuilder();
+            bool inQuotes = false;
 
-            try
+            for (int i = 0; i < line.Length; i++)
             {
-                List<string> csvLines = new List<string>();
-                int index = 1;
+                char c = line[i];
 
-                foreach (var item in todos)
+                if (c == '"')
                 {
-                    string escapedText = EscapeCsv(item.Text);
-                    string line = $"{index};{item.Status};{item.LastUpdate:yyyy-MM-ddTHH:mm:ss};{escapedText}";
-                    csvLines.Add(line);
-                    index++;
-                }
-
-                File.WriteAllLines(filePath, csvLines);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                throw new BusinessLogicException($"Нет прав на запись в файл: {filePath}");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                throw new BusinessLogicException($"Директория для файла задач не найдена: {filePath}");
-            }
-            catch (IOException ex)
-            {
-                throw new BusinessLogicException($"Ошибка при сохранении задач: {ex.Message}");
-            }
-        }
-
-        public static Todolist LoadTodos(string filePath)
-        {
-            Todolist todos = new Todolist();
-            
-            if (!File.Exists(filePath)) 
-                return todos;
-
-            try
-            {
-                string[] lines = File.ReadAllLines(filePath);
-                
-                foreach (string line in lines)
-                {
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
-                        
-                    string[] parts = line.Split(';');
-                    
-                    if (parts.Length >= 4)
+                    if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
                     {
-                        if (!Enum.TryParse<TodoStatus>(parts[1], out TodoStatus status))
-                            throw new BusinessLogicException($"Неверный статус в файле: {parts[1]}");
-                        
-                        if (!DateTime.TryParse(parts[2], out DateTime lastUpdate))
-                            throw new BusinessLogicException($"Неверный формат даты в файле: {parts[2]}");
-                        
-                        string text = string.Join(";", parts, 3, parts.Length - 3);
-                        text = UnescapeCsv(text);
-                        
-                        TodoItem item = new TodoItem(text, status, lastUpdate);
-                        todos.Add(item);
+                        current.Append('"');
+                        i++;
+                    }
+                    else
+                    {
+                        inQuotes = !inQuotes;
                     }
                 }
-                
-                return todos;
+                else if (c == delimiter && !inQuotes)
+                {
+                    result.Add(current.ToString());
+                    current.Clear();
+                }
+                else
+                {
+                    current.Append(c);
+                }
             }
-            catch (UnauthorizedAccessException)
-            {
-                throw new BusinessLogicException($"Нет прав на чтение файла: {filePath}");
-            }
-            catch (FileNotFoundException)
-            {
-                return todos;
-            }
-            catch (IOException ex)
-            {
-                throw new BusinessLogicException($"Ошибка при загрузке задач: {ex.Message}");
-            }
-        }
 
-        private static string EscapeCsv(string text)
-        {
-            return "\"" + text.Replace("\"", "\"\"").Replace("\n", "\\n") + "\"";
-        }
-
-        private static string UnescapeCsv(string text)
-        {
-            return text.Trim('"').Replace("\\n", "\n").Replace("\"\"", "\"");
+            result.Add(current.ToString());
+            return result.ToArray();
         }
     }
 }

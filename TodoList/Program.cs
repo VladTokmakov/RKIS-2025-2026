@@ -1,5 +1,6 @@
-﻿using System;
+﻿﻿using System;
 using System.IO;
+using System.Security.Cryptography;
 using Todolist.Exceptions;
 
 namespace Todolist
@@ -9,15 +10,17 @@ namespace Todolist
         private static Profile user;
         private static Todolist todoList = new Todolist();
         private static string dataDirPath = Path.Combine(Directory.GetCurrentDirectory(), "data");
-        private static string profileFilePath = Path.Combine(dataDirPath, "profile.txt");
-        private static string todoFilePath = Path.Combine(dataDirPath, "todo.csv");
+        private static string profileFilePath = Path.Combine(dataDirPath, "profile.dat");
+        private static string todoFilePath = Path.Combine(dataDirPath, "todo.dat");
+        private static IDataStorage storage;
 
         static void Main(string[] args)
         {
             try
             {
                 Console.WriteLine("Работу выполнили Токмаков и Сайтамирова");
-                
+
+                storage = new FileManager();
                 InitializeFileSystem();
                 LoadData();
 
@@ -40,12 +43,12 @@ namespace Todolist
                             continue;
                         }
 
-                        ICommand command = CommandParser.Parse(input, todoList, user);
-                        
+                        ICommand command = CommandParser.Parse(input, todoList, user, storage);
+
                         if (command != null)
                         {
                             command.Execute();
-                            
+
                             if (command is SetDataUserCommand setUserCommand && setUserCommand.User != null)
                             {
                                 user = setUserCommand.User;
@@ -91,20 +94,13 @@ namespace Todolist
             }
         }
 
-        static void SetDataUserCommand()
-        {
-            var setDataUserCommand = new SetDataUserCommand(profileFilePath);
-            setDataUserCommand.Execute();
-            user = setDataUserCommand.User;
-            AppInfo.CurrentProfile = user;
-        }
-
         static void InitializeFileSystem()
         {
             try
             {
                 FileManager.EnsureDataDirectory(dataDirPath);
                 CommandParser.SetFilePaths(todoFilePath, profileFilePath);
+                CommandParser.SetStorage(storage);
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -120,9 +116,9 @@ namespace Todolist
         {
             try
             {
-                user = FileManager.LoadProfile(profileFilePath);
+                user = storage.LoadProfile(profileFilePath);
                 AppInfo.CurrentProfile = user;
-                
+
                 if (user != null)
                 {
                     Console.WriteLine($"Загружен профиль: {user.GetInfo()}");
@@ -132,9 +128,13 @@ namespace Todolist
                     SetDataUserCommand();
                 }
 
-                todoList = FileManager.LoadTodos(todoFilePath);
+                todoList = storage.LoadTodos(todoFilePath);
                 AppInfo.Todos = todoList;
                 Console.WriteLine($"Загружено задач: {todoList.GetCount()}");
+            }
+            catch (CryptographicException ex)
+            {
+                throw new BusinessLogicException($"Ошибка расшифровки данных: {ex.Message}");
             }
             catch (Exception ex) when (ex is FormatException || ex is InvalidOperationException)
             {
@@ -144,6 +144,14 @@ namespace Todolist
             {
                 throw new BusinessLogicException($"Ошибка чтения файлов: {ex.Message}");
             }
+        }
+
+        static void SetDataUserCommand()
+        {
+            var setDataUserCommand = new SetDataUserCommand(profileFilePath, storage);
+            setDataUserCommand.Execute();
+            user = setDataUserCommand.User;
+            AppInfo.CurrentProfile = user;
         }
     }
 }
