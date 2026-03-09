@@ -5,7 +5,7 @@ using Todolist.Exceptions;
 
 namespace Todolist
 {
-    public class LoadCommand : IUndo
+    public class LoadCommand : ICommand
     {
         private readonly int _downloadsCount;
         private readonly int _maxProgress;
@@ -24,10 +24,6 @@ namespace Todolist
         public void Execute()
         {
             RunAsync().Wait();
-        }
-
-        public void Unexecute()
-        {
         }
 
         private async Task RunAsync()
