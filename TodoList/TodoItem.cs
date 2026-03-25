@@ -1,28 +1,40 @@
+using System;
+
 namespace Todolist
 {
+    public enum TodoStatus
+    {
+        NotStarted,
+        InProgress,
+        Completed,
+        Postponed,
+        Failed
+    }
+
     public class TodoItem
     {
-        public string Text { get; private set; }
-        public TodoStatus Status { get; private set; }
-        public DateTime LastUpdate { get; private set; }
+        public string Text { get; set; }
+        public TodoStatus Status { get; set; }
+        public DateTime LastUpdate { get; set; }
 
         public TodoItem(string text)
         {
-            Text = text;
+            Text = text ?? string.Empty;
             Status = TodoStatus.NotStarted;
             LastUpdate = DateTime.Now;
         }
 
         public TodoItem(string text, TodoStatus status, DateTime lastUpdate)
         {
-            Text = text;
+            Text = text ?? string.Empty;
             Status = status;
             LastUpdate = lastUpdate;
         }
 
-        public void SetLastUpdate(DateTime dateTime)
+        public void UpdateText(string newText)
         {
-            LastUpdate = dateTime;
+            Text = newText ?? string.Empty;
+            LastUpdate = DateTime.Now;
         }
 
         public void SetStatus(TodoStatus status, bool updateTime = true)
@@ -32,12 +44,6 @@ namespace Todolist
             {
                 LastUpdate = DateTime.Now;
             }
-        }
-
-        public void UpdateText(string newText)
-        {
-            Text = newText;
-            LastUpdate = DateTime.Now;
         }
 
         public string GetShortInfo()

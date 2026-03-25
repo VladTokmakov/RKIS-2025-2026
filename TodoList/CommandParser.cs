@@ -153,6 +153,9 @@ namespace Todolist
                 case "load":
                     return ParseLoad(arguments);
 
+                case "sync":
+                    return ParseSync(arguments);
+
                 case "exit":
                     return new ExitCommand();
 
@@ -283,6 +286,37 @@ namespace Todolist
                 throw new InvalidArgumentException("Размер загрузки должен быть положительным целым числом.");
 
             return new LoadCommand(count, size);
+        }
+
+        // Добавьте метод ParseSync:
+        private static ICommand ParseSync(string args)
+        {
+            if (string.IsNullOrWhiteSpace(args))
+                throw new InvalidArgumentException("Укажите --pull или --push.");
+
+            string[] syncParts = args.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            bool pull = false;
+            bool push = false;
+
+            foreach (string part in syncParts)
+            {
+                if (part.Equals("--pull", StringComparison.OrdinalIgnoreCase))
+                {
+                    pull = true;
+                    continue;
+                }
+                if (part.Equals("--push", StringComparison.OrdinalIgnoreCase))
+                {
+                    push = true;
+                    continue;
+                }
+                throw new InvalidArgumentException($"Неизвестный флаг sync: {part}.");
+            }
+
+            if (!pull && !push)
+                throw new InvalidArgumentException("Укажите --pull или --push.");
+
+            return new SyncCommand(pull, push);
         }
 
         private static bool ValidationNumber(string taskText, Todolist todoList, out TodoItem item, out int taskNumber)
