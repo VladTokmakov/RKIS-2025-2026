@@ -27,7 +27,7 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count + 1)
                 throw new Exception("Задача с таким индексом не существует.");
-            
+                        
             int zeroBasedIndex = index - 1;
             items.Insert(zeroBasedIndex, item);
         }
@@ -36,7 +36,7 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count)
                 throw new Exception("Задача с таким индексом не существует.");
-            
+                        
             int zeroBasedIndex = index - 1;
             items.RemoveAt(zeroBasedIndex);
         }
@@ -45,7 +45,7 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count)
                 throw new Exception("Задача с таким индексом не существует.");
-            
+                        
             int zeroBasedIndex = index - 1;
             items[zeroBasedIndex].UpdateText(newText);
         }
@@ -54,7 +54,7 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count)
                 throw new Exception("Задача с таким индексом не существует.");
-            
+                        
             int zeroBasedIndex = index - 1;
             items[zeroBasedIndex].SetStatus(status);
         }
@@ -63,12 +63,11 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count)
                 throw new Exception("Задача с таким индексом не существует.");
-            
+                        
             return items[index - 1];
         }
 
         public int Count => items.Count;
-
         public int GetCount() => items.Count;
 
         public void View(bool showIndex, bool showStatus, bool showDate)

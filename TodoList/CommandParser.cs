@@ -2,14 +2,15 @@ using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Todolist.Exceptions;
+using Todolist.Commands;
 
 namespace Todolist
 {
     public static class CommandParser
     {
-        private static string TodoFilePath;
-        private static string ProfileFilePath;
-        private static IDataStorage _storage;
+        private static string? TodoFilePath;
+        private static string? ProfileFilePath;
+        private static IDataStorage? _storage;
 
         public static void SetFilePaths(string todoFilePath, string profileFilePath)
         {
@@ -22,7 +23,7 @@ namespace Todolist
             _storage = storage;
         }
 
-        public static ICommand Parse(string input, Todolist todoList, Profile profile, IDataStorage storage = null)
+        public static ICommand? Parse(string input, TodoList todoList, Profile? profile, IDataStorage? storage = null)
         {
             if (storage != null)
                 _storage = storage;
@@ -80,7 +81,7 @@ namespace Todolist
                     if (profile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для просмотра задач.");
 
-                    if (ValidationNumber(arguments, todoList, out TodoItem readItem, out int readTaskNumber))
+                    if (ValidationNumber(arguments, todoList, out TodoItem? readItem, out int readTaskNumber))
                         return new ReadCommand(todoList, readTaskNumber);
 
                     throw new InvalidArgumentException("Неправильный формат, должен быть: read номер_задачи");
@@ -101,7 +102,7 @@ namespace Todolist
                         throw new AuthenticationException("Необходимо войти в профиль для изменения статуса задач.");
 
                     string[] statusParts = arguments.Split(' ');
-                    if (statusParts.Length == 2 && ValidationNumber(statusParts[0], todoList, out TodoItem statusItem, out int statusTaskNumber))
+                    if (statusParts.Length == 2 && ValidationNumber(statusParts[0], todoList, out TodoItem? statusItem, out int statusTaskNumber))
                     {
                         if (Enum.TryParse<TodoStatus>(statusParts[1], true, out TodoStatus status))
                         {
@@ -121,7 +122,7 @@ namespace Todolist
                     if (profile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для удаления задач.");
 
-                    if (ValidationNumber(arguments, todoList, out TodoItem deleteItem, out int deleteTaskNumber))
+                    if (ValidationNumber(arguments, todoList, out TodoItem? deleteItem, out int deleteTaskNumber))
                         return new DeleteCommand(todoList, deleteTaskNumber, TodoFilePath, _storage);
 
                     throw new InvalidArgumentException("Неправильный формат, должен быть: delete номер_задачи");
@@ -131,7 +132,7 @@ namespace Todolist
                         throw new AuthenticationException("Необходимо войти в профиль для обновления задач.");
 
                     string[] updateParts = arguments.Split(' ', 2);
-                    if (updateParts.Length == 2 && ValidationNumber(updateParts[0], todoList, out TodoItem updateItem, out int updateTaskNumber))
+                    if (updateParts.Length == 2 && ValidationNumber(updateParts[0], todoList, out TodoItem? updateItem, out int updateTaskNumber))
                     {
                         if (string.IsNullOrWhiteSpace(updateParts[1]))
                             throw new InvalidArgumentException("Новый текст задачи не может быть пустым.");
@@ -288,7 +289,6 @@ namespace Todolist
             return new LoadCommand(count, size);
         }
 
-        // Добавьте метод ParseSync:
         private static ICommand ParseSync(string args)
         {
             if (string.IsNullOrWhiteSpace(args))
@@ -319,7 +319,7 @@ namespace Todolist
             return new SyncCommand(pull, push);
         }
 
-        private static bool ValidationNumber(string taskText, Todolist todoList, out TodoItem item, out int taskNumber)
+        private static bool ValidationNumber(string taskText, TodoList todoList, out TodoItem? item, out int taskNumber)
         {
             item = null;
             taskNumber = 0;
@@ -333,7 +333,7 @@ namespace Todolist
             if (taskNumber > todoList.GetCount())
                 throw new TaskNotFoundException($"Задача с номером {taskNumber} не найдена. Всего задач: {todoList.GetCount()}");
 
-            item = todoList.GetItem(taskNumber - 1);
+            item = todoList.GetItem(taskNumber);
             return true;
         }
     }

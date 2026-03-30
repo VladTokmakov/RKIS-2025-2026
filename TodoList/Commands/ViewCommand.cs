@@ -8,9 +8,9 @@ namespace Todolist
         public bool ShowStatus { get; private set; }
         public bool ShowDate { get; private set; }
         public bool ShowAll { get; private set; }
-        public Todolist TodoList { get; private set; }
+        public TodoList TodoList { get; private set; }
 
-        public ViewCommand(Todolist todoList, bool showIndex = false, bool showStatus = false, bool showDate = false, bool showAll = false)
+        public ViewCommand(TodoList todoList, bool showIndex = false, bool showStatus = false, bool showDate = false, bool showAll = false)
         {
             TodoList = todoList;
             ShowIndex = showIndex;

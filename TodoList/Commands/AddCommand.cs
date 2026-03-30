@@ -7,14 +7,13 @@ namespace Todolist
     {
         public bool IsMultiline { get; private set; }
         public string TaskText { get; private set; }
-        public Todolist TodoList { get; private set; }
+        public TodoList TodoList { get; private set; }
+        private readonly string? TodoFilePath;
+        private readonly IDataStorage? _storage;
+        private TodoItem? _addedItem;
 
-        private readonly string TodoFilePath;
-        private readonly IDataStorage _storage;
-        private TodoItem _addedItem;
-
-        public AddCommand(Todolist todoList, string taskText, bool isMultiline = false, 
-                          string todoFilePath = null, IDataStorage storage = null)
+        public AddCommand(TodoList todoList, string taskText, bool isMultiline = false, 
+                          string? todoFilePath = null, IDataStorage? storage = null)
         {
             TodoList = todoList;
             TaskText = taskText;
@@ -49,23 +48,11 @@ namespace Todolist
 
                 _addedItem = new TodoItem(finalText);
                 TodoList.Add(_addedItem);
-
                 AppInfo.UndoStack.Push(this);
                 AppInfo.RedoStack.Clear();
-
                 Console.WriteLine($"Добавлена задача №{TodoList.GetCount()}: {finalText}");
 
-                if (!string.IsNullOrEmpty(TodoFilePath) && _storage != null)
-                {
-                    try
-                    {
-                        _storage.SaveTodos(TodoList, TodoFilePath);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new BusinessLogicException($"Ошибка сохранения задачи в файл: {ex.Message}");
-                    }
-                }
+                SaveTodos();
             }
             catch (Exception ex) when (!(ex is InvalidArgumentException || ex is BusinessLogicException))
             {
@@ -82,13 +69,9 @@ namespace Todolist
                     int lastIndex = TodoList.GetCount();
                     if (lastIndex > 0)
                     {
-                        TodoList.Delete(lastIndex - 1);
+                        TodoList.Delete(lastIndex);
                         Console.WriteLine("Добавление задачи отменено.");
-
-                        if (!string.IsNullOrEmpty(TodoFilePath) && _storage != null)
-                        {
-                            _storage.SaveTodos(TodoList, TodoFilePath);
-                        }
+                        SaveTodos();
                     }
                 }
             }
@@ -98,25 +81,35 @@ namespace Todolist
             }
         }
 
+        private void SaveTodos()
+        {
+            if (_storage != null && AppInfo.CurrentProfile != null)
+            {
+                try
+                {
+                    _storage.SaveTodos(AppInfo.CurrentProfile.Id, TodoList);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Предупреждение: не удалось сохранить задачи - {ex.Message}");
+                }
+            }
+        }
+
         private string ReadMultiline()
         {
             Console.WriteLine("Многострочный режим. Введите задачи (для завершения введите '!end'):");
             string multilineText = "";
-
             while (true)
             {
                 Console.Write("> ");
-                string line = Console.ReadLine();
-
+                string? line = Console.ReadLine();
                 if (line == null)
                     continue;
-
                 if (line.ToLower() == "!end")
                     break;
-
                 multilineText += line + "\n";
             }
-
             return multilineText.Trim();
         }
     }

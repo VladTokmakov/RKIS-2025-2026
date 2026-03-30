@@ -41,16 +41,16 @@ namespace Todolist.Commands
 
         private static void Push(ApiDataStorage remoteStorage)
         {
-            // Сохраняем локальные данные на диск
+           
             AppInfo.Storage.SaveProfiles(AppInfo.Profiles);
             if (AppInfo.CurrentProfileId != Guid.Empty)
                 AppInfo.Storage.SaveTodos(AppInfo.CurrentProfileId, AppInfo.Todos);
 
-            // Загружаем и отправляем профили
+           
             List<Profile> localProfiles = AppInfo.Storage.LoadProfiles().ToList();
             remoteStorage.SaveProfiles(localProfiles);
 
-            // Отправляем задачи для каждого профиля
+           
             foreach (Profile profile in localProfiles)
             {
                 List<TodoItem> todos = AppInfo.Storage.LoadTodos(profile.Id).ToList();
@@ -62,15 +62,15 @@ namespace Todolist.Commands
         {
             Guid previousProfileId = AppInfo.CurrentProfileId;
 
-            // Получаем профили с сервера
+           
             List<Profile> remoteProfiles = remoteStorage.LoadProfiles().ToList();
             
-            // Сохраняем их локально
+          
             AppInfo.Storage.SaveProfiles(remoteProfiles);
             
             var todosByProfile = new Dictionary<Guid, List<TodoItem>>();
             
-            // Получаем задачи для каждого профиля
+         
             foreach (Profile profile in remoteProfiles)
             {
                 List<TodoItem> todos = remoteStorage.LoadTodos(profile.Id).ToList();
@@ -78,7 +78,7 @@ namespace Todolist.Commands
                 AppInfo.Storage.SaveTodos(profile.Id, todos);
             }
 
-            // Обновляем глобальное состояние
+         
             AppInfo.Profiles = remoteProfiles;
             AppInfo.TodosByProfile.Clear();
             foreach ((Guid profileId, List<TodoItem> todos) in todosByProfile)
@@ -86,11 +86,11 @@ namespace Todolist.Commands
                 AppInfo.TodosByProfile[profileId] = new TodoList(todos);
             }
 
-            // Очищаем стеки отмены/повтора
+        
             AppInfo.UndoStack.Clear();
             AppInfo.RedoStack.Clear();
 
-            // Восстанавливаем текущий профиль, если он был
+      
             if (previousProfileId != Guid.Empty &&
                 AppInfo.TodosByProfile.TryGetValue(previousProfileId, out TodoList? pulledCurrentTodos))
             {
@@ -99,14 +99,13 @@ namespace Todolist.Commands
                 return;
             }
 
-            // Если предыдущий профиль не найден, выбираем первый
+
             if (AppInfo.Profiles.Count > 0)
             {
                 AppInfo.CurrentProfile = AppInfo.Profiles[0];
                 return;
             }
 
-            // Нет профилей
             AppInfo.CurrentProfileId = Guid.Empty;
             AppInfo.Todos = new TodoList();
         }

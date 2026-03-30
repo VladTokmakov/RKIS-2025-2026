@@ -37,7 +37,6 @@ namespace Todolist
                 {
                     aes.Key = _key;
                     aes.IV = _iv;
-
                     using (var cryptoStream = new CryptoStream(bufferedStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
                     using (var writer = new StreamWriter(cryptoStream, Encoding.UTF8))
                     {
@@ -84,7 +83,6 @@ namespace Todolist
                 {
                     aes.Key = _key;
                     aes.IV = _iv;
-
                     using (var cryptoStream = new CryptoStream(bufferedStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
                     using (var reader = new StreamReader(cryptoStream, Encoding.UTF8))
                     {
@@ -146,7 +144,6 @@ namespace Todolist
                 {
                     aes.Key = _key;
                     aes.IV = _iv;
-
                     using (var cryptoStream = new CryptoStream(bufferedStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
                     using (var writer = new StreamWriter(cryptoStream, Encoding.UTF8))
                     {
@@ -191,7 +188,6 @@ namespace Todolist
                 {
                     aes.Key = _key;
                     aes.IV = _iv;
-
                     using (var cryptoStream = new CryptoStream(bufferedStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
                     using (var reader = new StreamReader(cryptoStream, Encoding.UTF8))
                     {
@@ -244,7 +240,7 @@ namespace Todolist
         {
             if (string.IsNullOrEmpty(field))
                 return string.Empty;
-                
+            
             if (field.Contains(";") || field.Contains("\"") || field.Contains("\n"))
             {
                 string temp = field.Replace("\n", "\\n");
@@ -258,7 +254,7 @@ namespace Todolist
         {
             if (string.IsNullOrEmpty(field))
                 return string.Empty;
-                
+            
             if (field.StartsWith("\"") && field.EndsWith("\""))
             {
                 field = field.Substring(1, field.Length - 2);
@@ -273,11 +269,10 @@ namespace Todolist
             var result = new List<string>();
             var current = new StringBuilder();
             bool inQuotes = false;
-
+            
             for (int i = 0; i < line.Length; i++)
             {
                 char c = line[i];
-
                 if (c == '"')
                 {
                     if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
@@ -300,7 +295,6 @@ namespace Todolist
                     current.Append(c);
                 }
             }
-
             result.Add(current.ToString());
             return result.ToArray();
         }

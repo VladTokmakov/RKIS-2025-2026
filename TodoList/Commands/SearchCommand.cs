@@ -35,7 +35,6 @@ namespace Todolist
 
                 var query = results.AsEnumerable();
 
-                // Применяем фильтры
                 if (!string.IsNullOrWhiteSpace(_flags.ContainsText))
                 {
                     query = query.Where(t => t.Text.Contains(_flags.ContainsText, StringComparison.OrdinalIgnoreCase));
@@ -67,7 +66,6 @@ namespace Todolist
                     query = query.Where(t => t.Status == _flags.Status.Value);
                 }
 
-                // Применяем сортировку
                 if (!string.IsNullOrWhiteSpace(_flags.SortBy))
                 {
                     if (_flags.SortBy.Equals("text", StringComparison.OrdinalIgnoreCase))
@@ -84,7 +82,6 @@ namespace Todolist
                     }
                 }
 
-                // Применяем ограничение количества
                 if (_flags.TopCount.HasValue && _flags.TopCount.Value > 0)
                 {
                     query = query.Take(_flags.TopCount.Value);
@@ -101,7 +98,7 @@ namespace Todolist
                 Console.WriteLine($"Найдено задач: {searchResults.Count}");
                 Console.WriteLine();
 
-                var resultList = new Todolist();
+                var resultList = new TodoList();
                 foreach (var item in searchResults)
                 {
                     resultList.Add(item);

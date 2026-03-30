@@ -6,9 +6,9 @@ namespace Todolist
     public class ReadCommand : ICommand
     {
         public int TaskNumber { get; private set; }
-        public Todolist TodoList { get; private set; }
+        public TodoList TodoList { get; private set; }
 
-        public ReadCommand(Todolist todoList, int taskNumber)
+        public ReadCommand(TodoList todoList, int taskNumber)
         {
             TodoList = todoList;
             TaskNumber = taskNumber;
@@ -24,20 +24,19 @@ namespace Todolist
                     return;
                 }
 
-                int index = TaskNumber - 1;
-                if (index < 0)
+                if (TaskNumber < 1)
                 {
                     Console.WriteLine("Номер задачи должен быть положительным числом");
                     return;
                 }
-                
-                if (index >= TodoList.GetCount())
+                                
+                if (TaskNumber > TodoList.GetCount())
                 {
                     Console.WriteLine($"Задача с номером {TaskNumber} не найдена");
                     return;
                 }
 
-                TodoItem item = TodoList.GetItem(index);
+                TodoItem item = TodoList.GetItem(TaskNumber);
                 Console.WriteLine(item.GetFullInfo());
             }
             catch (Exception ex)
