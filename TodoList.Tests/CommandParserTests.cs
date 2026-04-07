@@ -7,12 +7,12 @@ namespace Todolist.Tests
 {
     public class CommandParserTests
     {
-        private readonly Todolist _todoList;
+        private readonly TodoList _todoList;
         private readonly Profile _profile;
-
+        
         public CommandParserTests()
         {
-            _todoList = new Todolist();
+            _todoList = new TodoList();
             _profile = new Profile("Тест", "Тестовый", 2000);
             AppInfo.CurrentProfile = _profile;
             AppInfo.Todos = _todoList;
@@ -40,7 +40,6 @@ namespace Todolist.Tests
         {
             // Act
             var command = CommandParser.Parse(input, _todoList, _profile);
-
             // Assert
             Assert.IsType(expectedType, command);
         }
@@ -54,7 +53,6 @@ namespace Todolist.Tests
         {
             // Act
             var command = CommandParser.Parse(input, _todoList, _profile) as AddCommand;
-
             // Assert
             Assert.NotNull(command);
             Assert.Equal(expectedText, command.TaskText);
@@ -84,10 +82,8 @@ namespace Todolist.Tests
         {
             // Arrange
             AppInfo.ShouldLogout = false;
-
             // Act
             var command = CommandParser.Parse(input, _todoList, _profile);
-
             // Assert
             Assert.Null(command);
             Assert.True(AppInfo.ShouldLogout);
@@ -106,10 +102,8 @@ namespace Todolist.Tests
         {
             // Arrange
             _todoList.Add(new TodoItem("Тестовая задача"));
-
             // Act
             var command = CommandParser.Parse("read 1", _todoList, _profile);
-
             // Assert
             Assert.IsType<ReadCommand>(command);
         }
@@ -122,7 +116,6 @@ namespace Todolist.Tests
         {
             // Arrange
             _todoList.Add(new TodoItem("Тестовая задача"));
-
             // Act & Assert
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
@@ -133,7 +126,6 @@ namespace Todolist.Tests
         {
             // Arrange
             _todoList.Add(new TodoItem("Тестовая задача"));
-
             // Act & Assert
             Assert.Throws<TaskNotFoundException>(() => 
                 CommandParser.Parse("read 2", _todoList, _profile));
@@ -154,7 +146,6 @@ namespace Todolist.Tests
         {
             // Act
             var command = CommandParser.Parse(input, _todoList, _profile);
-
             // Assert
             Assert.IsType<ViewCommand>(command);
         }
@@ -164,10 +155,8 @@ namespace Todolist.Tests
         {
             // Arrange
             _todoList.Add(new TodoItem("Тестовая задача"));
-
             // Act
             var command = CommandParser.Parse("status 1 Completed", _todoList, _profile);
-
             // Assert
             Assert.IsType<StatusCommand>(command);
         }
@@ -180,7 +169,6 @@ namespace Todolist.Tests
         {
             // Arrange
             _todoList.Add(new TodoItem("Тестовая задача"));
-
             // Act & Assert
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
@@ -191,10 +179,8 @@ namespace Todolist.Tests
         {
             // Arrange
             _todoList.Add(new TodoItem("Тестовая задача"));
-
             // Act
             var command = CommandParser.Parse("delete 1", _todoList, _profile);
-
             // Assert
             Assert.IsType<DeleteCommand>(command);
         }
@@ -207,7 +193,6 @@ namespace Todolist.Tests
         {
             // Arrange
             _todoList.Add(new TodoItem("Тестовая задача"));
-
             // Act & Assert
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
@@ -218,10 +203,8 @@ namespace Todolist.Tests
         {
             // Arrange
             _todoList.Add(new TodoItem("Старая задача"));
-
             // Act
             var command = CommandParser.Parse("update 1 Новая задача", _todoList, _profile);
-
             // Assert
             Assert.IsType<UpdateCommand>(command);
         }
@@ -234,7 +217,6 @@ namespace Todolist.Tests
         {
             // Arrange
             _todoList.Add(new TodoItem("Тестовая задача"));
-
             // Act & Assert
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
@@ -253,7 +235,6 @@ namespace Todolist.Tests
         {
             // Act
             var command = CommandParser.Parse("search", _todoList, _profile);
-
             // Assert
             Assert.IsType<SearchCommand>(command);
         }
@@ -266,7 +247,6 @@ namespace Todolist.Tests
         {
             // Act
             var command = CommandParser.Parse(input, _todoList, _profile);
-
             // Assert
             Assert.IsType<LoadCommand>(command);
         }
@@ -295,7 +275,6 @@ namespace Todolist.Tests
                 "exit",
                 "add_user"
             };
-
             // Act & Assert
             foreach (var cmd in commands)
             {
@@ -318,10 +297,8 @@ namespace Todolist.Tests
                 "delete 1",
                 "update 1 Текст"
             };
-
             // Arrange
             _todoList.Add(new TodoItem("Тест"));
-
             // Act & Assert
             foreach (var cmd in commands)
             {
