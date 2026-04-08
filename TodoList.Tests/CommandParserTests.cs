@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using Todolist;
 using Todolist.Exceptions;
+using Todolist.Models;
 
 namespace Todolist.Tests
 {
@@ -17,7 +18,7 @@ namespace Todolist.Tests
             AppInfo.CurrentProfile = _profile;
             AppInfo.Todos = _todoList;
         }
-
+        
         [Theory]
         [InlineData("")]
         [InlineData("   ")]
@@ -28,7 +29,7 @@ namespace Todolist.Tests
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
         }
-
+        
         [Theory]
         [InlineData("help", typeof(HelpCommand))]
         [InlineData("exit", typeof(ExitCommand))]
@@ -43,10 +44,10 @@ namespace Todolist.Tests
             // Assert
             Assert.IsType(expectedType, command);
         }
-
+        
         [Theory]
         [InlineData("add Купить молоко", "Купить молоко", false)]
-        [InlineData("add \"Текст в кавычках\"", "\"Текст в кавычках\"", false)]
+        [InlineData("add \"Текст в кавычках\"", "Текст в кавычках", false)]
         [InlineData("add --multiline", "", true)]
         [InlineData("add -m", "", true)]
         public void Parse_AddCommand_ReturnsCorrectCommand(string input, string expectedText, bool expectedMultiline)
@@ -58,7 +59,7 @@ namespace Todolist.Tests
             Assert.Equal(expectedText, command.TaskText);
             Assert.Equal(expectedMultiline, command.IsMultiline);
         }
-
+        
         [Fact]
         public void Parse_AddCommand_WithoutProfile_ThrowsAuthenticationException()
         {
@@ -66,7 +67,7 @@ namespace Todolist.Tests
             Assert.Throws<AuthenticationException>(() => 
                 CommandParser.Parse("add Тест", _todoList, null));
         }
-
+        
         [Fact]
         public void Parse_AddCommand_WithoutArguments_ThrowsInvalidArgumentException()
         {
@@ -74,7 +75,7 @@ namespace Todolist.Tests
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse("add", _todoList, _profile));
         }
-
+        
         [Theory]
         [InlineData("profile --out")]
         [InlineData("profile -o")]
@@ -88,7 +89,7 @@ namespace Todolist.Tests
             Assert.Null(command);
             Assert.True(AppInfo.ShouldLogout);
         }
-
+        
         [Fact]
         public void Parse_ProfileCommand_WithoutProfile_ThrowsProfileNotFoundException()
         {
@@ -96,7 +97,7 @@ namespace Todolist.Tests
             Assert.Throws<ProfileNotFoundException>(() => 
                 CommandParser.Parse("profile", _todoList, null));
         }
-
+        
         [Fact]
         public void Parse_ReadCommand_WithValidNumber_ReturnsReadCommand()
         {
@@ -107,7 +108,7 @@ namespace Todolist.Tests
             // Assert
             Assert.IsType<ReadCommand>(command);
         }
-
+        
         [Theory]
         [InlineData("read abc")]
         [InlineData("read 0")]
@@ -120,7 +121,7 @@ namespace Todolist.Tests
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
         }
-
+        
         [Fact]
         public void Parse_ReadCommand_WithNonExistentNumber_ThrowsTaskNotFoundException()
         {
@@ -130,7 +131,7 @@ namespace Todolist.Tests
             Assert.Throws<TaskNotFoundException>(() => 
                 CommandParser.Parse("read 2", _todoList, _profile));
         }
-
+        
         [Theory]
         [InlineData("view")]
         [InlineData("view -i")]
@@ -149,7 +150,7 @@ namespace Todolist.Tests
             // Assert
             Assert.IsType<ViewCommand>(command);
         }
-
+        
         [Fact]
         public void Parse_StatusCommand_WithValidArguments_ReturnsStatusCommand()
         {
@@ -160,7 +161,7 @@ namespace Todolist.Tests
             // Assert
             Assert.IsType<StatusCommand>(command);
         }
-
+        
         [Theory]
         [InlineData("status 1 InvalidStatus")]
         [InlineData("status abc Completed")]
@@ -173,7 +174,7 @@ namespace Todolist.Tests
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
         }
-
+        
         [Fact]
         public void Parse_DeleteCommand_WithValidNumber_ReturnsDeleteCommand()
         {
@@ -184,7 +185,7 @@ namespace Todolist.Tests
             // Assert
             Assert.IsType<DeleteCommand>(command);
         }
-
+        
         [Theory]
         [InlineData("delete abc")]
         [InlineData("delete 0")]
@@ -197,7 +198,7 @@ namespace Todolist.Tests
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
         }
-
+        
         [Fact]
         public void Parse_UpdateCommand_WithValidArguments_ReturnsUpdateCommand()
         {
@@ -208,7 +209,7 @@ namespace Todolist.Tests
             // Assert
             Assert.IsType<UpdateCommand>(command);
         }
-
+        
         [Theory]
         [InlineData("update")]
         [InlineData("update 1")]
@@ -221,7 +222,7 @@ namespace Todolist.Tests
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
         }
-
+        
         [Fact]
         public void Parse_UnknownCommand_ThrowsInvalidCommandException()
         {
@@ -229,7 +230,7 @@ namespace Todolist.Tests
             Assert.Throws<InvalidCommandException>(() => 
                 CommandParser.Parse("unknowncommand", _todoList, _profile));
         }
-
+        
         [Fact]
         public void Parse_SearchCommand_WithoutArgs_ReturnsSearchCommand()
         {
@@ -238,7 +239,7 @@ namespace Todolist.Tests
             // Assert
             Assert.IsType<SearchCommand>(command);
         }
-
+        
         [Theory]
         [InlineData("load 5 10")]
         [InlineData("load 1 100")]
@@ -250,7 +251,7 @@ namespace Todolist.Tests
             // Assert
             Assert.IsType<LoadCommand>(command);
         }
-
+        
         [Theory]
         [InlineData("load")]
         [InlineData("load 5")]
@@ -264,7 +265,7 @@ namespace Todolist.Tests
             Assert.Throws<InvalidArgumentException>(() => 
                 CommandParser.Parse(input, _todoList, _profile));
         }
-
+        
         [Fact]
         public void Parse_Commands_ThatDoNotRequireProfile_WorkWithoutProfile()
         {
@@ -282,7 +283,7 @@ namespace Todolist.Tests
                 Assert.Null(exception);
             }
         }
-
+        
         [Fact]
         public void Parse_Commands_ThatRequireProfile_ThrowAuthenticationException()
         {

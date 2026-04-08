@@ -11,15 +11,14 @@ namespace Todolist
         public TodoList TodoList { get; private set; }
         
         private TodoItem? _deletedItem;
-        private int _actualIndex;
-
+        
         public DeleteCommand(TodoList todoList, int taskNumber, Guid taskId)
         {
             TodoList = todoList;
             TaskNumber = taskNumber;
             TaskId = taskId;
         }
-
+        
         public void Execute()
         {
             try
@@ -45,7 +44,7 @@ namespace Todolist
                 throw;
             }
         }
-
+        
         public void Unexecute()
         {
             try

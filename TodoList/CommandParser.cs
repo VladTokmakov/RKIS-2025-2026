@@ -13,18 +13,16 @@ namespace Todolist
         {
             if (string.IsNullOrWhiteSpace(input))
                 throw new InvalidArgumentException("Команда не может быть пустой.");
-
+            
             string[] parts = input.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             string command = parts[0].ToLower();
-
+            
             switch (command)
             {
                 case "help":
                     return new HelpCommand();
-
                 case "exit":
                     return new ExitCommand();
-
                 case "profile":
                     if (parts.Length > 1 && (parts[1] == "--out" || parts[1] == "-o"))
                     {
@@ -34,10 +32,8 @@ namespace Todolist
                     if (currentProfile == null)
                         throw new ProfileNotFoundException("Профиль не найден. Создайте профиль командой 'add_user'");
                     return new ProfileCommand(currentProfile);
-
                 case "add_user":
                     return new SetDataUserCommand();
-
                 case "add":
                     if (currentProfile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для добавления задач.");
@@ -56,7 +52,6 @@ namespace Todolist
                     }
                     
                     return new AddCommand(todoList, taskText, isMultiline);
-
                 case "read":
                     if (currentProfile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для просмотра задач.");
@@ -71,7 +66,6 @@ namespace Todolist
                         throw new TaskNotFoundException($"Задача с номером {readIndex} не найдена.");
                     
                     return new ReadCommand(todoList, readIndex);
-
                 case "view":
                     if (currentProfile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для просмотра задач.");
@@ -82,7 +76,6 @@ namespace Todolist
                     bool showAll = input.Contains("-a") || input.Contains("--all");
                     
                     return new ViewCommand(todoList, showIndex, showStatus, showDate, showAll);
-
                 case "status":
                     if (currentProfile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для изменения статуса.");
@@ -100,7 +93,6 @@ namespace Todolist
                         throw new InvalidArgumentException($"Неизвестный статус. Доступные статусы: {string.Join(", ", Enum.GetNames<TodoStatus>())}");
                     
                     return new StatusCommand(todoList, statusIndex, newStatus);
-
                 case "delete":
                     if (currentProfile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для удаления задач.");
@@ -116,7 +108,6 @@ namespace Todolist
                     
                     var itemToDelete = todoList.GetItem(deleteIndex);
                     return new DeleteCommand(todoList, deleteIndex, itemToDelete.Id);
-
                 case "update":
                     if (currentProfile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для обновления задач.");
@@ -138,20 +129,16 @@ namespace Todolist
                         throw new InvalidArgumentException("Текст задачи не может быть пустым.");
                     
                     return new UpdateCommand(todoList, updateIndex, newText);
-
                 case "undo":
                     return new UndoCommand();
-
                 case "redo":
                     return new RedoCommand();
-
                 case "search":
                     if (currentProfile == null)
                         throw new AuthenticationException("Необходимо войти в профиль для поиска задач.");
                     
                     var searchFlags = ParseSearchFlags(input);
                     return new SearchCommand(searchFlags);
-
                 case "load":
                     if (parts.Length < 3)
                         throw new InvalidArgumentException("Укажите количество загрузок и размер. Пример: load 5 100");
@@ -163,7 +150,6 @@ namespace Todolist
                         throw new InvalidArgumentException("Размер загрузки должен быть положительным числом.");
                     
                     return new LoadCommand(downloads, size);
-
                 case "sync":
                     bool pull = input.Contains("--pull");
                     bool push = input.Contains("--push");
@@ -172,16 +158,23 @@ namespace Todolist
                         throw new InvalidArgumentException("Укажите флаг --pull или --push для синхронизации.");
                     
                     return new SyncCommand(pull, push);
-
                 default:
                     throw new InvalidCommandException($"Неизвестная команда: {command}");
             }
         }
-
+        
         private static SearchFlags ParseSearchFlags(string input)
         {
             var flags = new SearchFlags();
-            var args = input.Substring(input.IndexOf(' ')).Trim();
+            
+            // Находим первый пробел
+            int spaceIndex = input.IndexOf(' ');
+            if (spaceIndex == -1)
+            {
+                return flags; // Нет аргументов, возвращаем флаги по умолчанию
+            }
+            
+            var args = input.Substring(spaceIndex).Trim();
             var tokens = Tokenize(args);
             
             for (int i = 0; i < tokens.Count; i++)
@@ -234,7 +227,7 @@ namespace Todolist
             
             return flags;
         }
-
+        
         private static List<string> Tokenize(string args)
         {
             var tokens = new List<string>();
