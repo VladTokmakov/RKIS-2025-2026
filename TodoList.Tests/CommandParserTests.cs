@@ -268,7 +268,6 @@ namespace Todolist.Tests
         [Fact]
         public void Parse_Commands_ThatDoNotRequireProfile_WorkWithoutProfile()
         {
-            // Команды, не требующие аутентификации
             var commands = new[]
             {
                 "help",
@@ -287,7 +286,6 @@ namespace Todolist.Tests
         [Fact]
         public void Parse_Commands_ThatRequireProfile_ThrowAuthenticationException()
         {
-            // Команды, требующие аутентификации
             var commands = new[]
             {
                 "add Тест",

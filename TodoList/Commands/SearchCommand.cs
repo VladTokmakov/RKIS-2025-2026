@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Todolist.Exceptions;
+using Todolist.Models;
 
 namespace Todolist
 {
@@ -20,7 +22,7 @@ namespace Todolist
             {
                 if (AppInfo.CurrentProfile == null)
                     throw new AuthenticationException("Необходимо войти в профиль для поиска задач.");
-
+                
                 if (AppInfo.Todos == null || AppInfo.Todos.GetCount() == 0)
                 {
                     Console.WriteLine("Нет задач для поиска.");
@@ -30,7 +32,7 @@ namespace Todolist
                 var results = new List<TodoItem>();
                 for (int i = 0; i < AppInfo.Todos.GetCount(); i++)
                 {
-                    results.Add(AppInfo.Todos.GetItem(i));
+                    results.Add(AppInfo.Todos.GetItem(i + 1));
                 }
 
                 var query = results.AsEnumerable();
@@ -39,33 +41,27 @@ namespace Todolist
                 {
                     query = query.Where(t => t.Text.Contains(_flags.ContainsText, StringComparison.OrdinalIgnoreCase));
                 }
-
                 if (!string.IsNullOrWhiteSpace(_flags.StartsWithText))
                 {
                     query = query.Where(t => t.Text.StartsWith(_flags.StartsWithText, StringComparison.OrdinalIgnoreCase));
                 }
-
                 if (!string.IsNullOrWhiteSpace(_flags.EndsWithText))
                 {
                     query = query.Where(t => t.Text.EndsWith(_flags.EndsWithText, StringComparison.OrdinalIgnoreCase));
                 }
-
                 if (_flags.FromDate.HasValue)
                 {
                     query = query.Where(t => t.LastUpdate >= _flags.FromDate.Value.Date);
                 }
-
                 if (_flags.ToDate.HasValue)
                 {
                     var toDate = _flags.ToDate.Value.Date.AddDays(1).AddSeconds(-1);
                     query = query.Where(t => t.LastUpdate <= toDate);
                 }
-
                 if (_flags.Status.HasValue)
                 {
                     query = query.Where(t => t.Status == _flags.Status.Value);
                 }
-
                 if (!string.IsNullOrWhiteSpace(_flags.SortBy))
                 {
                     if (_flags.SortBy.Equals("text", StringComparison.OrdinalIgnoreCase))
@@ -81,7 +77,6 @@ namespace Todolist
                             : query.OrderBy(t => t.LastUpdate);
                     }
                 }
-
                 if (_flags.TopCount.HasValue && _flags.TopCount.Value > 0)
                 {
                     query = query.Take(_flags.TopCount.Value);

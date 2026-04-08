@@ -1,6 +1,8 @@
-﻿﻿using System;
+﻿﻿﻿using System;
 using System.Linq;
 using Todolist.Exceptions;
+using Todolist.Models;
+using Todolist.Services;
 
 namespace Todolist
 {
@@ -11,17 +13,13 @@ namespace Todolist
             Console.WriteLine("Добро пожаловать в TodoList!");
             Console.WriteLine("Введите 'add_user' для создания профиля или 'help' для списка команд.");
             
-            AppInfo.Storage = new FileManager("data");
-            
-            AppInfo.Profiles = AppInfo.Storage.LoadProfiles().ToList();
+            // Загружаем профили из БД
+            AppInfo.Profiles = AppInfo.ProfileRepo.GetAll();
             
             if (AppInfo.Profiles.Count > 0)
             {
                 var lastProfile = AppInfo.Profiles[0];
                 AppInfo.CurrentProfile = lastProfile;
-                
-                var todos = AppInfo.Storage.LoadTodos(lastProfile.Id).ToList();
-                AppInfo.Todos = new TodoList(todos);
                 
                 Console.WriteLine($"Загружен профиль: {lastProfile.GetInfo()}");
                 Console.WriteLine($"Всего задач: {AppInfo.Todos.GetCount()}");
@@ -53,7 +51,7 @@ namespace Todolist
                         continue;
                     }
                     
-                    var command = CommandParser.Parse(input, AppInfo.Todos, AppInfo.CurrentProfile, AppInfo.Storage);
+                    var command = CommandParser.Parse(input, AppInfo.Todos, AppInfo.CurrentProfile);
                     command?.Execute();
                 }
                 catch (AuthenticationException ex)
@@ -83,10 +81,6 @@ namespace Todolist
                 {
                     Console.WriteLine($"Ошибка: {ex.Message}");
                 }
-                catch (StorageException ex)
-                {
-                    Console.WriteLine($"Ошибка при работе с файлами: {ex.Message}");
-                }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Непредвиденная ошибка: {ex.Message}");
@@ -110,20 +104,14 @@ namespace Todolist
         {
             try
             {
-                if (AppInfo.Storage != null)
+                if (AppInfo.CurrentProfile != null && AppInfo.Todos != null)
                 {
-                    if (AppInfo.Profiles.Count > 0)
-                    {
-                        AppInfo.Storage.SaveProfiles(AppInfo.Profiles);
-                        Console.WriteLine("Профили сохранены.");
-                    }
-                    
-                    if (AppInfo.CurrentProfile != null && AppInfo.Todos != null)
-                    {
-                        AppInfo.Storage.SaveTodos(AppInfo.CurrentProfile.Id, AppInfo.Todos);
-                        Console.WriteLine($"Задачи профиля '{AppInfo.CurrentProfile.FirstName} {AppInfo.CurrentProfile.LastName}' сохранены.");
-                    }
+                    AppInfo.SaveCurrentTodos();
+                    Console.WriteLine($"Задачи профиля '{AppInfo.CurrentProfile.FirstName} {AppInfo.CurrentProfile.LastName}' сохранены в БД.");
                 }
+                
+                AppInfo.SaveAllProfiles();
+                Console.WriteLine("Профили сохранены в БД.");
             }
             catch (Exception ex)
             {

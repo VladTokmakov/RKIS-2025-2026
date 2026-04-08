@@ -1,5 +1,6 @@
 using System;
 using Todolist.Exceptions;
+using Todolist.Models;
 
 namespace Todolist
 {
@@ -26,41 +27,44 @@ namespace Todolist
                 string? firstName = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(firstName))
                     throw new InvalidArgumentException("Имя не может быть пустым.");
-
+                
                 Console.Write("Введите вашу фамилию: ");
                 string? lastName = Console.ReadLine();
                 if (string.IsNullOrWhiteSpace(lastName))
                     throw new InvalidArgumentException("Фамилия не может быть пустой.");
-
+                
                 Console.Write("Введите ваш год рождения: ");
                 string? yearInput = Console.ReadLine();
                 if (!int.TryParse(yearInput, out int yearBirth))
                     throw new InvalidArgumentException("Неверный формат года рождения");
+                
                 if (yearBirth < 1900 || yearBirth > DateTime.Now.Year)
                     throw new InvalidArgumentException($"Год рождения должен быть между 1900 и {DateTime.Now.Year}");
-
-                User = new Profile(firstName, lastName, yearBirth);
+                
+                // Создаем логин на основе имени и фамилии
+                string login = $"{firstName}_{lastName}_{DateTime.Now.Ticks}";
+                string password = "default"; // Временный пароль
+                
+                User = new Profile(login, password, firstName, lastName, yearBirth);
                 AppInfo.CurrentProfile = User;
                 
-                if (!AppInfo.Profiles.Contains(User))
+                if (!AppInfo.Profiles.Any(p => p.Id == User.Id))
                 {
                     AppInfo.Profiles.Add(User);
                 }
                 
+                // Сохраняем в БД
+                AppInfo.ProfileRepo.Add(User);
+                
                 Console.WriteLine($"Добавлен пользователь: {User.GetInfo()}");
                 Console.WriteLine();
-
-                if (_storage != null)
-                {
-                    _storage.SaveProfiles(AppInfo.Profiles);
-                    Console.WriteLine("Профиль сохранен.");
-                }
-
+                
                 AppInfo.UndoStack.Push(this);
                 AppInfo.RedoStack.Clear();
             }
             catch (Exception ex) when (!(ex is InvalidArgumentException))
             {
+                Console.WriteLine($"Ошибка при создании профиля: {ex.Message}");
                 throw;
             }
         }
@@ -70,9 +74,9 @@ namespace Todolist
             try
             {
                 AppInfo.CurrentProfile = _oldProfile;
-                if (_oldProfile != null && !string.IsNullOrEmpty(ProfileFilePath) && _storage != null)
+                if (_oldProfile != null)
                 {
-                    _storage.SaveProfiles(AppInfo.Profiles);
+                    AppInfo.ProfileRepo.Update(_oldProfile);
                 }
                 Console.WriteLine("Создание профиля отменено");
             }

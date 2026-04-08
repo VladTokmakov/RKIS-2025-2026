@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Todolist.Models;
 
 namespace Todolist
 {
@@ -27,7 +28,7 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count + 1)
                 throw new Exception("Задача с таким индексом не существует.");
-                        
+            
             int zeroBasedIndex = index - 1;
             items.Insert(zeroBasedIndex, item);
         }
@@ -36,7 +37,7 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count)
                 throw new Exception("Задача с таким индексом не существует.");
-                        
+            
             int zeroBasedIndex = index - 1;
             items.RemoveAt(zeroBasedIndex);
         }
@@ -45,7 +46,7 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count)
                 throw new Exception("Задача с таким индексом не существует.");
-                        
+            
             int zeroBasedIndex = index - 1;
             items[zeroBasedIndex].UpdateText(newText);
         }
@@ -54,7 +55,7 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count)
                 throw new Exception("Задача с таким индексом не существует.");
-                        
+            
             int zeroBasedIndex = index - 1;
             items[zeroBasedIndex].SetStatus(status);
         }
@@ -63,7 +64,7 @@ namespace Todolist
         {
             if (index < 1 || index > items.Count)
                 throw new Exception("Задача с таким индексом не существует.");
-                        
+            
             return items[index - 1];
         }
 
@@ -77,7 +78,7 @@ namespace Todolist
                 Console.WriteLine("Задачи отсутствуют");
                 return;
             }
-
+            
             string header = "";
             if (showIndex) header += "№       ";
             header += "Задача                            ";
@@ -85,13 +86,13 @@ namespace Todolist
             if (showStatus) header += "Статус";
             Console.WriteLine(header);
             Console.WriteLine(new string('-', header.Length));
-
+            
             for (int i = 0; i < items.Count; i++)
             {
                 string row = "";
-                if (showIndex) row += $"{i + 1}       ".Substring(0, 8);
+                if (showIndex) row += $"{i + 1,-7} ";
                 string taskText = items[i].GetShortInfo();
-                row += taskText + new string(' ', 34 - taskText.Length);
+                row += taskText.PadRight(34);
                 if (showDate) row += $"{items[i].LastUpdate:yyyy-MM-dd HH:mm} ";
                 if (showStatus) row += $"{items[i].Status}";
                 Console.WriteLine(row);

@@ -1,5 +1,6 @@
 using System;
 using Todolist.Exceptions;
+using Todolist.Models;
 
 namespace Todolist
 {
@@ -8,18 +9,15 @@ namespace Todolist
         public bool IsMultiline { get; private set; }
         public string TaskText { get; private set; }
         public TodoList TodoList { get; private set; }
-        private readonly string? TodoFilePath;
-        private readonly IDataStorage? _storage;
+        
         private TodoItem? _addedItem;
+        private int _addedIndex;
 
-        public AddCommand(TodoList todoList, string taskText, bool isMultiline = false, 
-                          string? todoFilePath = null, IDataStorage? storage = null)
+        public AddCommand(TodoList todoList, string taskText, bool isMultiline = false)
         {
             TodoList = todoList;
             TaskText = taskText;
             IsMultiline = isMultiline;
-            TodoFilePath = todoFilePath;
-            _storage = storage;
         }
 
         public void Execute()
@@ -37,10 +35,6 @@ namespace Todolist
                 else
                 {
                     finalText = TaskText;
-                    if (finalText.StartsWith("\"") && finalText.EndsWith("\""))
-                    {
-                        finalText = finalText.Substring(1, finalText.Length - 2);
-                    }
                 }
 
                 if (string.IsNullOrWhiteSpace(finalText))
@@ -48,11 +42,13 @@ namespace Todolist
 
                 _addedItem = new TodoItem(finalText);
                 TodoList.Add(_addedItem);
+                _addedIndex = TodoList.GetCount();
+                
+                AppInfo.TodoRepo.Add(_addedItem, AppInfo.CurrentProfileId);
+                
                 AppInfo.UndoStack.Push(this);
                 AppInfo.RedoStack.Clear();
-                Console.WriteLine($"Добавлена задача №{TodoList.GetCount()}: {finalText}");
-
-                SaveTodos();
+                Console.WriteLine($"Добавлена задача №{_addedIndex}: {finalText}");
             }
             catch (Exception ex) when (!(ex is InvalidArgumentException || ex is BusinessLogicException))
             {
@@ -66,33 +62,14 @@ namespace Todolist
             {
                 if (_addedItem != null && TodoList != null)
                 {
-                    int lastIndex = TodoList.GetCount();
-                    if (lastIndex > 0)
-                    {
-                        TodoList.Delete(lastIndex);
-                        Console.WriteLine("Добавление задачи отменено.");
-                        SaveTodos();
-                    }
+                    TodoList.Delete(_addedIndex);
+                    AppInfo.TodoRepo.Delete(_addedItem.Id);
+                    Console.WriteLine("Добавление задачи отменено.");
                 }
             }
             catch (Exception ex)
             {
                 throw new BusinessLogicException($"Ошибка при отмене добавления задачи: {ex.Message}");
-            }
-        }
-
-        private void SaveTodos()
-        {
-            if (_storage != null && AppInfo.CurrentProfile != null)
-            {
-                try
-                {
-                    _storage.SaveTodos(AppInfo.CurrentProfile.Id, TodoList);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Предупреждение: не удалось сохранить задачи - {ex.Message}");
-                }
             }
         }
 

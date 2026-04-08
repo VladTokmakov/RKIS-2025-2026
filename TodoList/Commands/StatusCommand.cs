@@ -1,5 +1,6 @@
 using System;
 using Todolist.Exceptions;
+using Todolist.Models;
 
 namespace Todolist
 {
@@ -8,18 +9,15 @@ namespace Todolist
         public TodoList TodoList { get; private set; }
         public int TaskNumber { get; private set; }
         public TodoStatus Status { get; private set; }
-        private readonly string? TodoFilePath;
-        private readonly IDataStorage? _storage;
+        
         private TodoStatus _oldStatus;
+        private Guid _taskId;
 
-        public StatusCommand(TodoList todoList, int taskNumber, TodoStatus status, 
-                              string? todoFilePath = null, IDataStorage? storage = null)
+        public StatusCommand(TodoList todoList, int taskNumber, TodoStatus status)
         {
             TodoList = todoList;
             TaskNumber = taskNumber;
             Status = status;
-            TodoFilePath = todoFilePath;
-            _storage = storage;
         }
 
         public void Execute()
@@ -28,23 +26,22 @@ namespace Todolist
             {
                 if (TodoList == null)
                     throw new BusinessLogicException("Ошибка: нет активного списка задач.");
-
-                if (TaskNumber < 1)
-                    throw new InvalidArgumentException("Номер задачи должен быть положительным числом.");
-                if (TaskNumber > TodoList.GetCount())
+                
+                if (TaskNumber < 1 || TaskNumber > TodoList.GetCount())
                     throw new TaskNotFoundException($"Задача с номером {TaskNumber} не найдена.");
-
+                
                 TodoItem item = TodoList.GetItem(TaskNumber);
                 _oldStatus = item.Status;
+                _taskId = item.Id;
+                
                 TodoList.SetStatus(TaskNumber, Status);
+                AppInfo.TodoRepo.SetStatus(_taskId, Status);
                 
                 AppInfo.UndoStack.Push(this);
                 AppInfo.RedoStack.Clear();
                 Console.WriteLine($"Задача №{TaskNumber} статус изменен с {_oldStatus} на {Status}");
-
-                SaveTodos();
             }
-            catch (Exception ex) when (!(ex is TaskNotFoundException || ex is InvalidArgumentException || ex is BusinessLogicException))
+            catch (Exception ex) when (!(ex is TaskNotFoundException || ex is InvalidArgumentException))
             {
                 throw;
             }
@@ -54,34 +51,16 @@ namespace Todolist
         {
             try
             {
-                if (TodoList != null)
+                if (TodoList != null && TaskNumber >= 1 && TaskNumber <= TodoList.GetCount())
                 {
-                    if (TaskNumber >= 1 && TaskNumber <= TodoList.GetCount())
-                    {
-                        TodoList.SetStatus(TaskNumber, _oldStatus);
-                        Console.WriteLine($"Статус задачи №{TaskNumber} возвращен к {_oldStatus}.");
-                        SaveTodos();
-                    }
+                    TodoList.SetStatus(TaskNumber, _oldStatus);
+                    AppInfo.TodoRepo.SetStatus(_taskId, _oldStatus);
+                    Console.WriteLine($"Статус задачи №{TaskNumber} возвращен к {_oldStatus}.");
                 }
             }
             catch (Exception ex)
             {
                 throw new BusinessLogicException($"Ошибка при отмене изменения статуса: {ex.Message}");
-            }
-        }
-
-        private void SaveTodos()
-        {
-            if (_storage != null && AppInfo.CurrentProfile != null)
-            {
-                try
-                {
-                    _storage.SaveTodos(AppInfo.CurrentProfile.Id, TodoList);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Предупреждение: не удалось сохранить задачи - {ex.Message}");
-                }
             }
         }
     }
