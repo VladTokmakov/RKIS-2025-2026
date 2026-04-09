@@ -1,4 +1,4 @@
-﻿﻿﻿using System;
+﻿﻿using System;
 using System.Linq;
 using Todolist.Exceptions;
 using Todolist.Models;
@@ -13,7 +13,6 @@ namespace Todolist
             Console.WriteLine("Добро пожаловать в TodoList!");
             Console.WriteLine("Введите 'add_user' для создания профиля или 'help' для списка команд.");
             
-            // Загружаем профили из БД
             AppInfo.Profiles = AppInfo.ProfileRepo.GetAll();
             
             if (AppInfo.Profiles.Count > 0)

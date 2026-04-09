@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Todolist.Interfaces;
 
 namespace Todolist.Models
 {
@@ -29,30 +30,40 @@ namespace Todolist.Models
         public DateTime LastUpdate { get; set; }
 
         public int SortOrder { get; set; }
-
         public Guid ProfileId { get; set; }
 
         [ForeignKey("ProfileId")]
         public virtual Profile Profile { get; set; }
 
-        public TodoItem()
+        private readonly IClock _clock;
+
+        // Конструктор по умолчанию для EF Core
+        public TodoItem() : this(new SystemClock())
+        {
+        }
+
+        public TodoItem(IClock clock)
         {
             Id = Guid.NewGuid();
             Status = TodoStatus.NotStarted;
-            LastUpdate = DateTime.Now;
+            LastUpdate = clock.Now;
             Text = string.Empty;
             SortOrder = 0;
             Profile = null!;
+            _clock = clock;
         }
 
-        public TodoItem(string text) : this()
+        public TodoItem(string text) : this(text, new SystemClock())
+        {
+        }
+
+        public TodoItem(string text, IClock clock) : this(clock)
         {
             Text = text ?? string.Empty;
         }
 
-        public TodoItem(string text, TodoStatus status, DateTime lastUpdate) : this()
+        public TodoItem(string text, TodoStatus status, DateTime lastUpdate) : this(text, new SystemClock())
         {
-            Text = text ?? string.Empty;
             Status = status;
             LastUpdate = lastUpdate;
         }
@@ -60,7 +71,7 @@ namespace Todolist.Models
         public void UpdateText(string newText)
         {
             Text = newText ?? string.Empty;
-            LastUpdate = DateTime.Now;
+            LastUpdate = _clock.Now;
         }
 
         public void SetStatus(TodoStatus status, bool updateTime = true)
@@ -68,7 +79,7 @@ namespace Todolist.Models
             Status = status;
             if (updateTime)
             {
-                LastUpdate = DateTime.Now;
+                LastUpdate = _clock.Now;
             }
         }
 

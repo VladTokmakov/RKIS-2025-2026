@@ -23,6 +23,8 @@
 - IDataStorage - интерфейс для абстракции работы с файлами
 - AppDbContext - контекст базы данных Entity Framework Core для работы с SQLite
 - ApiDataStorage - класс для удаленной работы с данными через HTTP, реализующий IDataStorage
+- IClock - интерфейс для абстракции времени, позволяющий тестировать зависимые от времени компоненты
+- SystemClock - реализация IClock, возвращающая реальное системное время
 
 Собственные классы исключений
 - AuthenticationException - ошибки аутентификации
@@ -33,23 +35,20 @@
 - BusinessLogicException - ошибки бизнес-логики
 - StorageException - ошибки работы с хранилищем
 
-Папки для хранения данных:
-- Models - папка с моделями данных (Profile, TodoItem), адаптированными для EF Core
-- Services - папка с репозиториями (ProfileRepository, TodoRepository) для инкапсуляции логики работы с БД
-- FileManager - класс для работы с файлами через потоки с шифрованием (помечен как устаревший)
-
-Также добавлены классы в папку Commands: AddCommand, ViewCommand, ReadCommand, StatusCommand, DeleteCommand, UpdateCommand, ProfileCommand, HelpCommand, SetDataUserCommand, ExitCommand, UndoCommand, RedoCommand, SearchFlags, SearchCommand, LoadCommand, SyncCommand.
+Структура папок:
+- Models - модели данных (Profile, TodoItem)
+- Services - репозитории (ProfileRepository, TodoRepository)
+- Data - контекст БД и классы хранилищ
+- Commands - классы команд: AddCommand, ViewCommand, ReadCommand, StatusCommand, DeleteCommand, UpdateCommand, ProfileCommand, HelpCommand, SetDataUserCommand, ExitCommand, UndoCommand, RedoCommand, SearchFlags, SearchCommand, LoadCommand, SyncCommand.
+- Interfaces - интерфейсы (IClock, IFileSystem, IDataStorage) - Migrations - миграции EF Core
 
 Используется SQLite в качестве реляционной базы данных (файл todos.db) с Entity Framework Core 8.0 в качестве ORM для работы с БД. Настроена связь один-ко-многим между Profile и TodoItem с каскадным удалением, а также уникальный индекс на поле Login в таблице Profile. Автоматические миграции управляют схемой БД, а репозитории инкапсулируют всю логику доступа к данным. Сохранение данных происходит автоматически при выполнении команд.
 
 Файловая система и шифрование:
-- Используются только потоки: FileStream, StreamReader, StreamWriter, BufferedStream, CryptoStream
-- Добавлено шифрование данных через CryptoStream (AES-256)
-- Ключ и IV фиксированы для обеспечения целостности данных
-- Все ошибки ввода-вывода обрабатываются с осмысленными сообщениями
-- Локальные данные хранятся в SQLite базе данных (todos.db)
-- Файловое хранение (FileManager) заменено на репозитории с EF Core
-- Сервер хранит данные в зашифрованном виде на своей стороне
+- Используются потоки: FileStream, CryptoStream (AES-256)
+- Ключ и IV фиксированы
+- Локальные данные хранятся в SQLite (todos.db)
+- Сервер хранит данные в зашифрованном виде
 
 Команды:
 - help - список всех команд с кратким описанием
@@ -98,3 +97,13 @@ NotStarted, InProgress, Completed, Postponed, Failed
 - --desc — сортировка по убыванию (по умолчанию — по возрастанию)
         Ограничение вывода:
 - --top N — показать только первые N задач после фильтрации и сортировки
+
+Модульное тестирование с Moq:
+- Созданы IClock и SystemClock для абстракции времени
+- IClock добавлен в конструктор TodoItem (со значением по умолчанию SystemClock)
+- Все вызовы DateTime.Now заменены на _clock.Now
+- TodoItemTests: проверка LastUpdate через мок IClock с фиксированным временем
+- Созданы IFileSystem и RealFileSystem для абстракции файловой системы
+- FileStorageTests: тестирование SaveProfiles/LoadProfiles/SaveTodos/LoadTodos с моком IFileSystem
+- Все тесты по паттерну AAA (Arrange-Act-Assert)
+- Именование тестов: MethodName_Scenario_ExpectedResult
