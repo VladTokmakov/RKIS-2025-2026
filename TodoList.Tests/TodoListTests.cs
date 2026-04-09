@@ -157,7 +157,7 @@ namespace Todolist.Tests
             // Arrange
             var list = new TodoList();
             list.Add(new TodoItem("Задача 1"));
-            // Act & Assert - индекс 0 недопустим
+            // Act & Assert 
             Assert.Throws<Exception>(() => list.GetItem(0));
         }
 

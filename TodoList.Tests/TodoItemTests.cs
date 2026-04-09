@@ -59,7 +59,7 @@ namespace Todolist.Tests
             // Assert
             Assert.Equal(newStatus, item.Status);
             Assert.Equal(newTime, item.LastUpdate);
-            _mockClock.Verify(c => c.Now, Times.Exactly(2)); // 1 раз в конструкторе, 1 раз в SetStatus
+            _mockClock.Verify(c => c.Now, Times.Exactly(2)); 
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace Todolist.Tests
             // Assert
             Assert.Equal(newStatus, item.Status);
             Assert.Equal(originalDate, item.LastUpdate);
-            _mockClock.Verify(c => c.Now, Times.Once); // Только в конструкторе
+            _mockClock.Verify(c => c.Now, Times.Once); 
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace Todolist.Tests
             // Assert
             Assert.Equal(newText, item.Text);
             Assert.Equal(newTime, item.LastUpdate);
-            _mockClock.Verify(c => c.Now, Times.Exactly(2)); // 1 раз в конструкторе, 1 раз в UpdateText
+            _mockClock.Verify(c => c.Now, Times.Exactly(2)); 
         }
     }
 }
